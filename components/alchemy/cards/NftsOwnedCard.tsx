@@ -13,16 +13,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { shortenAddress } from '@/lib/utils/validation';
+import { NFTImage } from '@/components/ui/optimized-image';
 
 interface NFT {
+  contract: string;
   tokenId: string;
-  name?: string;
+  name: string;
   description?: string;
   image?: string;
   collection: string;
-  contract: string;
-  tokenType: 'ERC721' | 'ERC1155';
-  metadata?: any;
+  tokenType: string;
 }
 
 interface Collection {
@@ -173,32 +173,42 @@ export function NftsOwnedCard({
                     {collection.nfts.map((nft) => (
                       <div
                         key={`${nft.contract}-${nft.tokenId}`}
-                        className="group relative rounded-lg overflow-hidden border bg-card hover:shadow-lg transition-all"
+                        className="group relative rounded-lg overflow-hidden border bg-card hover:shadow-lg transition-all cursor-pointer"
                       >
                         {/* NFT Image */}
-                        <div className="aspect-square bg-muted/50 flex items-center justify-center overflow-hidden">
-                          {nft.image ? (
-                            <img
-                              src={nft.image}
-                              alt={nft.name || `#${nft.tokenId}`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                target.nextElementSibling?.classList.remove('hidden');
-                              }}
-                            />
-                          ) : null}
-                          <div className={nft.image ? 'hidden' : ''}>
-                            <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
-                          </div>
+                        <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center overflow-hidden relative">
+                          <NFTImage
+                            image={{
+                              cachedUrl: nft.image,
+                              originalUrl: nft.image,
+                            }}
+                            alt={nft.name || `#${nft.tokenId}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            fallback={
+                              <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
+                                <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+                              </div>
+                            }
+                          />
+
+                          {/* Token Type Badge */}
+                          <Badge variant="secondary" className="absolute top-2 right-2 text-xs">
+                            {nft.tokenType}
+                          </Badge>
                         </div>
 
                         {/* NFT Info */}
                         <div className="p-3 space-y-1">
-                          <div className="font-medium text-sm truncate">
+                          <div className="font-medium text-sm truncate" title={nft.name}>
                             {nft.name || `#${nft.tokenId}`}
                           </div>
+
+                          {nft.description && (
+                            <div className="text-xs text-muted-foreground line-clamp-2" title={nft.description}>
+                              {nft.description}
+                            </div>
+                          )}
+
                           <div className="text-xs text-muted-foreground">
                             Token ID: {nft.tokenId.length > 8 ? `${nft.tokenId.slice(0, 8)}...` : nft.tokenId}
                           </div>
@@ -209,6 +219,7 @@ export function NftsOwnedCard({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             View <ExternalLink className="h-3 w-3" />
                           </a>

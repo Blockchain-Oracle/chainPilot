@@ -8,6 +8,11 @@ import { tokenPriceByAddressTool } from './tokens/get-token-price-by-address';
 
 // NFT tools
 import { nftsOwnedTool } from './nfts/get-nfts-owned';
+import { getOwnersForNftTool } from './nfts/get-owners-for-nft';
+import { getCollectionsForOwnerTool } from './nfts/get-collections-for-owner';
+import { getNftMetadataTool } from './nfts/get-nft-metadata';
+import { getContractMetadataTool } from './nfts/get-contract-metadata';
+import { getFloorPriceTool } from './nfts/get-floor-price';
 
 // Account tools
 import { balanceTool } from './account/get-balance';
@@ -36,6 +41,11 @@ export const alchemyTools: BaseTool[] = [
 
   // NFT operations
   nftsOwnedTool,
+  getOwnersForNftTool,
+  getCollectionsForOwnerTool,
+  getNftMetadataTool,
+  getContractMetadataTool,
+  getFloorPriceTool,
 
   // Account operations
   balanceTool,
@@ -65,6 +75,11 @@ export {
 
   // NFT tools
   nftsOwnedTool,
+  getOwnersForNftTool,
+  getCollectionsForOwnerTool,
+  getNftMetadataTool,
+  getContractMetadataTool,
+  getFloorPriceTool,
 
   // Account tools
   balanceTool,
@@ -87,7 +102,14 @@ export {
 // Tool categories for UI organization
 export const toolCategories = {
   tokens: [tokenBalanceTool, tokenMetadataTool, tokenPriceTool, tokenPriceByAddressTool],
-  nfts: [nftsOwnedTool],
+  nfts: [
+    nftsOwnedTool,
+    getOwnersForNftTool,
+    getCollectionsForOwnerTool,
+    getNftMetadataTool,
+    getContractMetadataTool,
+    getFloorPriceTool,
+  ],
   account: [balanceTool, transactionHistoryTool],
   transactions: [
     estimateGasTool,
