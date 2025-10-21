@@ -20,10 +20,7 @@ import {
   polygonAmoy,
 } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react';
-
-// Create query client
-const queryClient = new QueryClient();
+import { ReactNode, useState } from 'react';
 
 // Configure chains and providers
 const config = getDefaultConfig({
@@ -45,13 +42,23 @@ const config = getDefaultConfig({
 });
 
 export function Web3Provider({ children }: { children: ReactNode }) {
+  // Create a new QueryClient instance for each request to avoid sharing state
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        // Prevent refetching on window focus in the terminal UI
+        refetchOnWindowFocus: false,
+      },
+    },
+  }));
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           theme={darkTheme({
-            accentColor: '#7856ff',
-            accentColorForeground: 'white',
+            accentColor: 'hsl(26, 78%, 61%)',
+            accentColorForeground: 'hsl(220, 13%, 8%)',
             borderRadius: 'medium',
             fontStack: 'system',
             overlayBlur: 'small',

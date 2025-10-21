@@ -70,18 +70,18 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased bg-background dark" style={{ backgroundColor: 'hsl(240deg 10% 3.92%)' }}>
-        <Web3Provider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            // enableSystem
-            disableTransitionOnChange
-          >
+      <body className="antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <Web3Provider>
             <Toaster position="top-center" />
             {children}
-          </ThemeProvider>
-        </Web3Provider>
+          </Web3Provider>
+        </ThemeProvider>
       </body>
     </html>
   );
