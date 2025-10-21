@@ -13,14 +13,8 @@ import { nftsOwnedTool } from './nfts/get-nfts-owned';
 import { balanceTool } from './account/get-balance';
 import { transactionHistoryTool } from './account/get-transaction-history';
 
-// Transaction tools (read-only)
+// Transaction tools
 import { estimateGasTool } from './transactions/estimate-gas';
-
-// Transaction preparation tools (write)
-import { prepareEthTransferTool } from './transactions/prepare-eth-transfer';
-import { prepareTokenTransferTool } from './transactions/prepare-token-transfer';
-import { prepareTokenApprovalTool } from './transactions/prepare-token-approval';
-import { prepareContractCallTool } from './transactions/prepare-contract-call';
 
 // Utility tools
 import { ensResolverTool } from './utils/resolve-ens';
@@ -41,14 +35,8 @@ export const alchemyTools: BaseTool[] = [
   balanceTool,
   transactionHistoryTool,
 
-  // Transaction operations (read-only)
+  // Transaction operations
   estimateGasTool,
-
-  // Transaction preparation (write operations)
-  prepareEthTransferTool,
-  prepareTokenTransferTool,
-  prepareTokenApprovalTool,
-  prepareContractCallTool,
 
   // Utility operations
   ensResolverTool,
@@ -70,14 +58,8 @@ export {
   balanceTool,
   transactionHistoryTool,
 
-  // Transaction tools (read-only)
+  // Transaction tools
   estimateGasTool,
-
-  // Transaction preparation tools (write)
-  prepareEthTransferTool,
-  prepareTokenTransferTool,
-  prepareTokenApprovalTool,
-  prepareContractCallTool,
 
   // Utility tools
   ensResolverTool,
@@ -89,13 +71,7 @@ export const toolCategories = {
   tokens: [tokenBalanceTool, tokenMetadataTool, tokenPriceTool, tokenPriceByAddressTool],
   nfts: [nftsOwnedTool],
   account: [balanceTool, transactionHistoryTool],
-  transactions: [
-    estimateGasTool,
-    prepareEthTransferTool,
-    prepareTokenTransferTool,
-    prepareTokenApprovalTool,
-    prepareContractCallTool,
-  ],
+  transactions: [estimateGasTool],
   utilities: [ensResolverTool, gasPriceTool],
 };
 
