@@ -1,56 +1,60 @@
-import { FunctionTool } from '@iqai/adk';
+import { createTool } from '@iqai/adk';
 import { getAlchemyService } from '@/lib/services/alchemy';
 import { z } from 'zod';
 
-const schema = z.object({
-  address: z.string().describe('The wallet address to check balances for (0x...)'),
-  chainId: z.number().optional().default(1).describe('The chain ID (1=Ethereum, 8453=Base, 137=Polygon, etc.)'),
-});
-
-async function getTokenBalance({
-  address,
-  chainId = 1,
-}: z.infer<typeof schema>) {
-  try {
-    const alchemy = getAlchemyService();
-
-    // Validate address format
-    if (!address.match(/^0x[a-fA-F0-9]{40}$/)) {
-      return {
-        success: false,
-        error: 'Invalid Ethereum address format',
-      };
-    }
-
-    // Get native balance
-    const nativeBalance = await alchemy.getNativeBalance(address, chainId);
-
-    // Get token balances
-    const tokenBalances = await alchemy.getTokenBalances(address, chainId);
-
-    return {
-      success: true,
-      data: {
-        address,
-        chain: nativeBalance.chainName,
-        chainId,
-        native: {
-          symbol: nativeBalance.symbol,
-          balance: nativeBalance.balance,
-        },
-        tokens: tokenBalances,
-        totalTokens: tokenBalances.length,
-      },
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || 'Failed to fetch token balances',
-    };
-  }
-}
-
-export const tokenBalanceTool = new FunctionTool(getTokenBalance, {
+export const tokenBalanceTool = createTool({
   name: 'get_token_balance',
   description: 'Get native and ERC20 token balances for a wallet address on any supported chain',
+  schema: z.object({
+    address: z.string().describe('The wallet address to check balances for (0x...)'),
+    chainId: z.number().optional().default(1).describe('The chain ID (1=Ethereum, 8453=Base, 137=Polygon, etc.)'),
+  }),
+  fn: async ({ address, chainId = 1 }, context) => {
+    try {
+      console.log('[Tool] get_token_balance called with:', { address, chainId });
+      const alchemy = getAlchemyService();
+
+      // Validate address format
+      if (!address.match(/^0x[a-fA-F0-9]{40}$/)) {
+        console.error('[Tool] Invalid address format:', address);
+        return {
+          success: false,
+          error: 'Invalid Ethereum address format',
+        };
+      }
+
+      // Get native balance
+      console.log('[Tool] Fetching native balance...');
+      const nativeBalance = await alchemy.getNativeBalance(address, chainId);
+      console.log('[Tool] Native balance:', nativeBalance);
+
+      // Get token balances
+      console.log('[Tool] Fetching token balances...');
+      const tokenBalances = await alchemy.getTokenBalances(address, chainId);
+      console.log('[Tool] Token balances count:', tokenBalances.length);
+
+      const result = {
+        success: true,
+        data: {
+          address,
+          chain: nativeBalance.chainName,
+          chainId,
+          native: {
+            symbol: nativeBalance.symbol,
+            balance: nativeBalance.balance,
+          },
+          tokens: tokenBalances,
+          totalTokens: tokenBalances.length,
+        },
+      };
+      console.log('[Tool] Returning success result');
+      return result;
+    } catch (error: any) {
+      console.error('[Tool] Error in get_token_balance:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to fetch token balances',
+      };
+    }
+  }
 });

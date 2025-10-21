@@ -20,7 +20,7 @@ import {
   polygonAmoy,
 } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 
 // Configure chains and providers
 const config = getDefaultConfig({
@@ -42,6 +42,8 @@ const config = getDefaultConfig({
 });
 
 export function Web3Provider({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  
   // Create query client inside component to avoid re-initialization
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
@@ -51,6 +53,15 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       },
     },
   }));
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render Web3 providers on server-side to avoid indexedDB errors
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
     <WagmiProvider config={config}>

@@ -2,7 +2,8 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface MessagePart {
   type: string;
-  content?: string;
+  text?: string;     // ADK uses 'text' field
+  content?: string;  // Keep for backward compatibility
   [key: string]: any;
 }
 
@@ -51,18 +52,38 @@ export function useADKChat({
     setIsLoading(true);
     abortControllerRef.current = new AbortController();
 
-    // Create proper message structure
+    // Create proper message structure with guaranteed ID
     let userMessage: Message;
     if ('content' in message && typeof message.content === 'string') {
       userMessage = {
         id: crypto.randomUUID(),
         role: 'user',
-        parts: [{ type: 'text', content: message.content }],
+        // Use 'text' field to match ADK expectation
+        parts: [{ type: 'text', text: message.content }],
         createdAt: new Date(),
       };
     } else {
-      userMessage = message as Message;
+      const msgAsMessage = message as Message;
+      // CRITICAL: Always ensure the message has an ID
+      // Create new object to ensure immutability isn't an issue
+      userMessage = {
+        ...msgAsMessage,
+        id: msgAsMessage.id || crypto.randomUUID(),
+        createdAt: msgAsMessage.createdAt || new Date(),
+      };
+      
+      if (!msgAsMessage.id) {
+        console.log('[useADKChat] Generated missing ID for user message:', userMessage.id);
+      }
     }
+
+    console.log('[useADKChat] Prepared user message:', {
+      id: userMessage.id,
+      role: userMessage.role,
+      partsCount: userMessage.parts?.length,
+      hasId: !!userMessage.id,
+      idType: typeof userMessage.id,
+    });
 
     // Add user message to the list
     setMessages(prev => [...prev, userMessage]);
@@ -80,6 +101,13 @@ export function useADKChat({
 
     setStreamingMessage(assistantMessage);
     setMessages(prev => [...prev, assistantMessage]);
+
+    console.log('[useADKChat] Sending request to /api/chat:', {
+      chatId: id,
+      messageId: userMessage.id,
+      walletAddress,
+      userId,
+    });
 
     try {
       const response = await fetch('/api/chat', {
@@ -100,7 +128,13 @@ export function useADKChat({
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('[useADKChat] API request failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorBody: errorText,
+        });
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
       }
 
       const reader = response.body?.getReader();
@@ -138,13 +172,14 @@ export function useADKChat({
                     msg.id === assistantId
                       ? {
                           ...msg,
-                          parts: [{ type: 'text', content: currentContent }],
+                          // Use both text and content for compatibility
+                          parts: [{ type: 'text', text: currentContent, content: currentContent }],
                         }
                       : msg
                   ));
                   setStreamingMessage(prev => prev ? {
                     ...prev,
-                    parts: [{ type: 'text', content: currentContent }],
+                    parts: [{ type: 'text', text: currentContent, content: currentContent }],
                   } : null);
                   break;
 
@@ -222,13 +257,15 @@ export function useADKChat({
           onError(error);
         }
         // Add error message
+        const errorText = `Error: ${error.message || 'Failed to get response'}`;
         setMessages(prev => prev.map(msg =>
           msg.id === assistantId
             ? {
                 ...msg,
                 parts: [{
                   type: 'text',
-                  content: `Error: ${error.message || 'Failed to get response'}`,
+                  text: errorText,
+                  content: errorText,  // Both for compatibility
                 }],
               }
             : msg
@@ -271,8 +308,9 @@ export function useADKChat({
     // Resend the last user message
     const lastUserMessage = newMessages[newMessages.length - 1];
     if (lastUserMessage && lastUserMessage.role === 'user') {
-      const content = lastUserMessage.parts
-        .find(p => p.type === 'text')?.content;
+      // Check both 'text' and 'content' fields for compatibility
+      const textPart = lastUserMessage.parts.find(p => p.type === 'text');
+      const content = textPart?.text || textPart?.content;
       if (content) {
         await append({ role: 'user', content });
       }

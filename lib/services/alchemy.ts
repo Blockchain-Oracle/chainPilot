@@ -71,21 +71,72 @@ export class AlchemyService {
     return this.instances.get(chainId)!;
   }
 
+  // Get RPC URL for a chain
+  private getRpcUrl(chainId: number): string {
+    const rpcUrls: Record<number, string> = {
+      1: `https://eth-mainnet.g.alchemy.com/v2/${this.apiKey}`,
+      11155111: `https://eth-sepolia.g.alchemy.com/v2/${this.apiKey}`,
+      8453: `https://base-mainnet.g.alchemy.com/v2/${this.apiKey}`,
+      84532: `https://base-sepolia.g.alchemy.com/v2/${this.apiKey}`,
+      42161: `https://arb-mainnet.g.alchemy.com/v2/${this.apiKey}`,
+      421614: `https://arb-sepolia.g.alchemy.com/v2/${this.apiKey}`,
+      10: `https://opt-mainnet.g.alchemy.com/v2/${this.apiKey}`,
+      11155420: `https://opt-sepolia.g.alchemy.com/v2/${this.apiKey}`,
+      137: `https://polygon-mainnet.g.alchemy.com/v2/${this.apiKey}`,
+      80002: `https://polygon-amoy.g.alchemy.com/v2/${this.apiKey}`,
+    };
+    
+    const url = rpcUrls[chainId];
+    if (!url) {
+      throw new Error(`Unsupported chain ID: ${chainId}. Supported chains: ${Object.keys(CHAIN_NAMES).join(', ')}`);
+    }
+    return url;
+  }
+
   // Get native balance (ETH, MATIC, etc.)
   async getNativeBalance(address: string, chainId: number = 1): Promise<{
     balance: string;
     symbol: string;
     chainName: string;
   }> {
-    const alchemy = this.getAlchemy(chainId);
-    const balance = await alchemy.core.getBalance(address);
+    try {
+      // Use direct RPC call instead of ethers.js to avoid browser-specific issues
+      const rpcUrl = this.getRpcUrl(chainId);
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_getBalance',
+          params: [address.toLowerCase(), 'latest'],
+          id: 1,
+        }),
+      });
 
-    const symbol = this.getNativeTokenSymbol(chainId);
-    return {
-      balance: formatUnits(BigInt(balance.toString()), 18),
-      symbol,
-      chainName: CHAIN_NAMES[chainId],
-    };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message || 'RPC error');
+      }
+
+      const balanceWei = BigInt(data.result || '0');
+      const symbol = this.getNativeTokenSymbol(chainId);
+      
+      return {
+        balance: formatUnits(balanceWei, 18),
+        symbol,
+        chainName: CHAIN_NAMES[chainId],
+      };
+    } catch (error: any) {
+      console.error(`Error fetching native balance for ${address} on chain ${chainId}:`, error);
+      throw new Error(`Failed to fetch native balance: ${error.message}`);
+    }
   }
 
   // Get ERC20 token balances
@@ -97,32 +148,85 @@ export class AlchemyService {
     balance: string;
     logo?: string;
   }>> {
-    const alchemy = this.getAlchemy(chainId);
-    const balances = await alchemy.core.getTokenBalances(address);
+    try {
+      // Use direct RPC call instead of ethers.js
+      const rpcUrl = this.getRpcUrl(chainId);
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'alchemy_getTokenBalances',
+          params: [address.toLowerCase()],
+          id: 1,
+        }),
+      });
 
-    const tokens = [];
-    for (const token of balances.tokenBalances) {
-      if (BigInt(token.tokenBalance || 0) > 0n) {
-        try {
-          const metadata = await alchemy.core.getTokenMetadata(token.contractAddress);
-          tokens.push({
-            contractAddress: token.contractAddress,
-            symbol: metadata.symbol || 'UNKNOWN',
-            name: metadata.name || 'Unknown Token',
-            decimals: metadata.decimals || 18,
-            balance: formatUnits(
-              BigInt(token.tokenBalance || 0),
-              metadata.decimals || 18
-            ),
-            logo: metadata.logo || undefined,
-          });
-        } catch (error) {
-          console.error(`Error fetching metadata for ${token.contractAddress}:`, error);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message || 'RPC error');
+      }
+
+      const tokenBalances = data.result?.tokenBalances || [];
+      const tokens = [];
+
+      for (const token of tokenBalances) {
+        if (BigInt(token.tokenBalance || 0) > 0n) {
+          try {
+            // Get token metadata using direct API call
+            const metadataResponse = await fetch(rpcUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'alchemy_getTokenMetadata',
+                params: [token.contractAddress],
+                id: 2,
+              }),
+            });
+
+            const metadataData = await metadataResponse.json();
+            const metadata = metadataData.result || {};
+
+            tokens.push({
+              contractAddress: token.contractAddress,
+              symbol: metadata.symbol || 'UNKNOWN',
+              name: metadata.name || 'Unknown Token',
+              decimals: metadata.decimals || 18,
+              balance: formatUnits(
+                BigInt(token.tokenBalance || 0),
+                metadata.decimals || 18
+              ),
+              logo: metadata.logo || undefined,
+            });
+          } catch (error) {
+            console.error(`Error fetching metadata for ${token.contractAddress}:`, error);
+            // Include token without metadata if metadata fetch fails
+            tokens.push({
+              contractAddress: token.contractAddress,
+              symbol: 'UNKNOWN',
+              name: 'Unknown Token',
+              decimals: 18,
+              balance: formatUnits(BigInt(token.tokenBalance || 0), 18),
+            });
+          }
         }
       }
-    }
 
-    return tokens;
+      return tokens;
+    } catch (error: any) {
+      console.error(`Error fetching token balances for ${address} on chain ${chainId}:`, error);
+      throw new Error(`Failed to fetch token balances: ${error.message}`);
+    }
   }
 
   // Get NFTs owned by address

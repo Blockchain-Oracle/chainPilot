@@ -44,7 +44,7 @@ export class RedisSessionService extends BaseSessionService {
     });
 
     // Handle Redis connection events
-    this.redis.on("error", (error) => {
+    this.redis.on("error", (error: Error) => {
       console.error("Redis connection error:", error);
     });
 
@@ -68,7 +68,13 @@ export class RedisSessionService extends BaseSessionService {
       agentId,
       userId,
       createdAt: new Date().toISOString(),
-      ...initialData,
+      // ✅ CRITICAL: Initialize required ADK session fields
+      events: [],     // ADK requires this array for appendEvent
+      history: [],    // ADK requires this array for conversation history
+      state: {},      // Session state storage
+      appName: agentId,  // Some ADK methods expect appName
+      lastUpdateTime: Date.now(),
+      ...initialData, // Allow override from initialData if provided
     };
     
     await this.set(id, sessionData);
@@ -84,7 +90,18 @@ export class RedisSessionService extends BaseSessionService {
     sessionId?: string
   ): Promise<any | null> {
     const id = sessionId || `${agentId}:${userId}`;
-    return await this.get(id);
+    const session = await this.get(id);
+    
+    if (session) {
+      // ✅ Ensure backward compatibility: Add missing required fields
+      if (!session.events) session.events = [];
+      if (!session.history) session.history = [];
+      if (!session.state) session.state = {};
+      if (!session.appName) session.appName = agentId;
+      if (!session.lastUpdateTime) session.lastUpdateTime = Date.now();
+    }
+    
+    return session;
   }
 
   /**
@@ -96,14 +113,14 @@ export class RedisSessionService extends BaseSessionService {
       const keys = await this.redis.keys(pattern);
       
       const sessions = await Promise.all(
-        keys.map(async (key) => {
+        keys.map(async (key: string) => {
           const sessionId = key.replace(this.config.prefix, "");
           return await this.get(sessionId);
         })
       );
       
       return {
-        sessions: sessions.filter((s) => s !== null)
+        sessions: sessions.filter((s: any) => s !== null)
       };
     } catch (error) {
       console.error("Failed to list sessions:", error);
@@ -179,6 +196,73 @@ export class RedisSessionService extends BaseSessionService {
   }
 
   /**
+   * Append an event to the session (required by ADK)
+   */
+  async appendEvent(
+    agentId: string,
+    userId: string,
+    sessionId: string,
+    event: any
+  ): Promise<void> {
+    try {
+      const session = await this.getSession(agentId, userId, sessionId);
+      if (!session) {
+        throw new Error(`Session not found: ${sessionId}`);
+      }
+      
+      // Ensure events array exists (defensive programming)
+      if (!session.events) session.events = [];
+      
+      // Append the event
+      session.events.push(event);
+      
+      // Also add to history if it's a user or assistant message
+      if (event.author === 'user' || event.author !== 'user') {
+        if (!session.history) session.history = [];
+        session.history.push(event);
+      }
+      
+      // Update last update time
+      session.lastUpdateTime = Date.now();
+      
+      // Save back to Redis
+      await this.set(sessionId, session);
+    } catch (error) {
+      console.error(`Failed to append event to session ${sessionId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update session (required by ADK)
+   */
+  async updateSession(
+    agentId: string,
+    userId: string,
+    sessionId: string,
+    updates: Record<string, any>
+  ): Promise<void> {
+    try {
+      const session = await this.getSession(agentId, userId, sessionId);
+      if (!session) {
+        throw new Error(`Session not found: ${sessionId}`);
+      }
+      
+      // Merge updates into session
+      const updatedSession = { ...session, ...updates };
+      
+      // Update timestamp
+      updatedSession.lastUpdateTime = Date.now();
+      
+      // Save back to Redis
+      await this.set(sessionId, updatedSession);
+    } catch (error) {
+      console.error(`Failed to update session ${sessionId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Delete session data
    */
   async delete(sessionId: string): Promise<void> {
@@ -224,7 +308,7 @@ export class RedisSessionService extends BaseSessionService {
     try {
       const pattern = `${this.config.prefix}*`;
       const keys = await this.redis.keys(pattern);
-      return keys.map((key) => key.replace(this.config.prefix, ""));
+      return keys.map((key: string) => key.replace(this.config.prefix, ""));
     } catch (error) {
       console.error("Failed to get all sessions:", error);
       return [];

@@ -1,93 +1,44 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      // Alchemy CDN and NFT images
-      {
-        protocol: 'https',
-        hostname: 'nft-cdn.alchemy.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.alchemyapi.io',
-      },
-      // OpenSea
-      {
-        protocol: 'https',
-        hostname: 'i.seadn.io',
-      },
-      {
-        protocol: 'https',
-        hostname: 'openseauserdata.com',
-      },
-      // IPFS gateways
-      {
-        protocol: 'https',
-        hostname: 'ipfs.io',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.ipfs.nftstorage.link',
-      },
-      {
-        protocol: 'https',
-        hostname: 'gateway.pinata.cloud',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cloudflare-ipfs.com',
-      },
-      // Arweave
-      {
-        protocol: 'https',
-        hostname: 'arweave.net',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.arweave.net',
-      },
-      // Common NFT hosting
-      {
-        protocol: 'https',
-        hostname: '*.mypinata.cloud',
-      },
-      {
-        protocol: 'https',
-        hostname: 'storage.googleapis.com',
-      },
-      // Token logos
-      {
-        protocol: 'https',
-        hostname: 'static.alchemyapi.io',
-      },
-      {
-        protocol: 'https',
-        hostname: 'raw.githubusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'assets.coingecko.com',
-      },
-      // Generic HTTPS for NFT projects
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      // HTTP fallback for development
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-      },
-    ],
-    // Allow data URLs for base64 images
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Force ethers.js and related packages to use Node.js versions instead of browser versions
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@ethersproject/providers': require.resolve('@ethersproject/providers'),
+        '@ethersproject/web': require.resolve('@ethersproject/web'),
+        'alchemy-sdk': require.resolve('alchemy-sdk'),
+      };
+
+      // Ensure fetch polyfill is available for server-side ethers.js
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
+    }
+
+    // Handle externals for server-side packages
+    if (isServer) {
+      config.externals.push({
+        'node:crypto': 'crypto',
+        'node:fs': 'fs',
+        'node:path': 'path',
+      });
+    }
+
+    return config;
+  },
+  experimental: {
+    // Enable server actions and other experimental features as needed
+    serverActions: true,
+  },
+  // Turbo configuration
+  turbo: {
+    root: process.cwd(),
   },
 };
 

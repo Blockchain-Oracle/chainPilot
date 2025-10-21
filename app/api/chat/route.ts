@@ -18,11 +18,18 @@ import type { ChatMessage } from "@/lib/types";
 import type { ChatModel } from "@/lib/ai/models";
 import type { VisibilityType } from "@/components/visibility-selector";
 
+// Force Node.js runtime (required for Alchemy SDK)
+export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
     const requestBody = await request.json();
+    console.log('[API] POST /api/chat - Request received:', {
+      hasId: !!requestBody.id,
+      hasMessage: !!requestBody.message,
+      messageId: requestBody.message?.id,
+    });
 
     const {
       id,
@@ -37,6 +44,12 @@ export async function POST(request: NextRequest) {
       selectedVisibilityType: VisibilityType;
       walletAddress?: string;
     } = requestBody;
+
+    console.log('[API] Destructured request:', {
+      id,
+      messageId: message?.id,
+      walletAddress: bodyWalletAddress,
+    });
 
     // Get wallet address from request body or headers
     const walletAddress = bodyWalletAddress || request.headers.get('x-wallet-address');
@@ -69,6 +82,7 @@ export async function POST(request: NextRequest) {
     const chat = await getChatById({ id });
 
     if (!chat) {
+      console.log('[API] Creating new chat:', { id, userId: user.id });
       const title = await generateTitleFromUserMessage({
         message,
       });
@@ -79,33 +93,58 @@ export async function POST(request: NextRequest) {
         title,
         visibility: selectedVisibilityType,
       });
+      console.log('[API] Chat created successfully:', { id, title });
     } else {
+      console.log('[API] Using existing chat:', { id, userId: chat.userId });
       if (chat.userId !== user.id) {
+        console.error('[API] Forbidden: Chat user mismatch', {
+          chatUserId: chat.userId,
+          requestUserId: user.id
+        });
         return new ChatSDKError("forbidden:chat").toResponse();
       }
     }
 
     const messagesFromDb = await getMessagesByChatId({ id });
 
-    // Save user message
-    await saveMessages({
-      messages: [
-        {
-          chatId: id,
-          id: message.id,
-          role: "user",
-          parts: JSON.stringify(message.parts),
-          attachments: JSON.stringify([]),
-          createdAt: new Date(),
-        },
-      ],
+    console.log('[API] Preparing to save user message:', {
+      chatId: id,
+      messageId: message.id,
+      messageIdType: typeof message.id,
+      messageIdDefined: message.id !== undefined,
+      messageStructure: message,
+      partsBeforeStringify: message.parts,
+      partsType: typeof message.parts,
     });
 
-    // Get ADK tools and services
-    const tools = await getAlchemyTools();
-    const sessionService = getRedisSessionService();
+    // Save user message
+    const messageToSave = {
+      chatId: id,
+      id: message.id,
+      role: "user",
+      parts: JSON.stringify(message.parts),
+      attachments: JSON.stringify([]),
+      createdAt: new Date(),
+    };
 
-    // Create ADK agent with proper session handling
+    console.log('[API] Message prepared for DB:', messageToSave);
+
+    await saveMessages({
+      messages: [messageToSave],
+    });
+
+    console.log('[API] User message saved successfully');
+
+    // Get ADK tools
+    const tools = await getAlchemyTools();
+
+    // TEMPORARY: Use only converted tools until all are migrated
+    // See TOOL_CONVERSION_GUIDE.md for conversion instructions
+    const convertedTools = tools.slice(0, 1); // Only get_token_balance is converted
+    console.log('[API] Using converted tools only:', convertedTools.map(t => t.name));
+
+    // Create ADK agent WITHOUT session persistence (use in-memory only)
+    console.log('[API] Building ADK agent with tools:', convertedTools.length);
     const agentBuilder = AgentBuilder.create("alchemy_assistant")
       .withModel("gemini-2.0-flash-exp")
       .withDescription("Multi-chain blockchain assistant powered by Alchemy")
@@ -140,14 +179,19 @@ When users request blockchain operations:
 2. Validate all parameters
 3. Show clear results with explorer links
 4. Wait for confirmation on transactions`)
-      .withTools(...tools);
+      .withTools(...convertedTools);
 
-    // Only add session service if it exists
-    if (sessionService) {
-      agentBuilder.withSessionService(sessionService);
-    }
+    // DO NOT add session service - let ADK use default in-memory sessions
+    console.log('[API] Using in-memory sessions (no persistence)')
 
-    const { runner } = await agentBuilder.build();
+    console.log('[API] Building agent...');
+    const { runner, agent, session } = await agentBuilder.build();
+    console.log('[API] Agent built successfully:', {
+      agentName: agent.name,
+      hasRunner: !!runner,
+      sessionId: session?.id,
+      userId: session?.userId
+    });
 
     // Create SSE stream for ADK events
     const encoder = new TextEncoder();
@@ -158,30 +202,12 @@ When users request blockchain operations:
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Get or create session
-          let session;
-          if (sessionService) {
-            session = await sessionService.getSession(
-              "alchemy_assistant",
-              user.id,
-              id
-            );
-
-            if (!session) {
-              session = await sessionService.createSession(
-                "alchemy_assistant",
-                user.id,
-                {},
-                id
-              );
-            }
-          }
 
           // Get the message content
           const userMessage = message.parts
             .map((part: any) => {
               if (typeof part === 'string') return part;
-              if (part.type === 'text') return part.content;
+              if (part.type === 'text') return part.text || part.content || '';
               return '';
             })
             .join(' ');
@@ -195,16 +221,33 @@ When users request blockchain operations:
             })}\n\n`
           ));
 
-          // Process with ADK - correct format with newMessage structure
-          for await (const event of runner.runAsync({
-            userId: user.id,
-            sessionId: id,
-            newMessage: {
-              role: 'user',
-              parts: [{ text: userMessage }]
-            }
-          })) {
-            // Stream text deltas
+          // Process with ADK using the correct runAsync signature
+          console.log('[API] Starting ADK runner with message:', {
+            messageLength: userMessage.length,
+            chatId: id,
+            sessionId: session?.id,
+            userId: session?.userId
+          });
+
+          try {
+            // Correct ADK runAsync signature from docs:
+            // runAsync({ userId, sessionId, newMessage })
+            for await (const event of runner.runAsync({
+              userId: session.userId,
+              sessionId: session.id,
+              newMessage: {
+                parts: [{ text: userMessage }]
+              }
+            })) {
+              console.log('[API] Received event:', {
+                partial: event.partial?.substring(0, 50),
+                hasContent: !!event.content,
+                contentParts: event.content?.parts?.length || 0,
+                hasFunctionCalls: !!event.getFunctionCalls,
+                hasFunctionResponses: !!event.getFunctionResponses,
+              });
+
+            // Stream text deltas (for streaming mode)
             if (event.partial) {
               assistantContent += event.partial;
               controller.enqueue(encoder.encode(
@@ -213,6 +256,21 @@ When users request blockchain operations:
                   textDelta: event.partial
                 })}\n\n`
               ));
+            }
+
+            // Extract text from event content (for non-streaming final response)
+            if (event.content?.parts) {
+              for (const part of event.content.parts) {
+                if (part.text) {
+                  assistantContent += part.text;
+                  controller.enqueue(encoder.encode(
+                    `data: ${JSON.stringify({
+                      type: "text-delta",
+                      textDelta: part.text
+                    })}\n\n`
+                  ));
+                }
+              }
             }
 
             // Stream tool calls
@@ -248,9 +306,25 @@ When users request blockchain operations:
                 ));
               }
             }
+            }
+            
+            console.log('[API] ADK runner completed successfully');
+          } catch (runError) {
+            console.error('[API] Error in ADK runner loop:', {
+              error: runError,
+              message: runError instanceof Error ? runError.message : String(runError),
+              stack: runError instanceof Error ? runError.stack : undefined,
+            });
+            throw runError;
           }
 
           // Save assistant message
+          console.log('[API] Saving assistant message:', {
+            assistantMessageId,
+            contentLength: assistantContent.length,
+            chatId: id,
+          });
+          
           await saveMessages({
             messages: [
               {
@@ -265,6 +339,8 @@ When users request blockchain operations:
               },
             ],
           });
+          
+          console.log('[API] Assistant message saved successfully');
 
           // Send completion signal
           controller.enqueue(encoder.encode(
