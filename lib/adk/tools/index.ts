@@ -4,6 +4,7 @@ import { BaseTool } from '@iqai/adk';
 import { tokenBalanceTool } from './tokens/get-token-balance';
 import { tokenMetadataTool } from './tokens/get-token-metadata';
 import { tokenPriceTool } from './tokens/get-token-price';
+import { tokenPriceByAddressTool } from './tokens/get-token-price-by-address';
 
 // NFT tools
 import { nftsOwnedTool } from './nfts/get-nfts-owned';
@@ -25,6 +26,7 @@ export const alchemyTools: BaseTool[] = [
   tokenBalanceTool,
   tokenMetadataTool,
   tokenPriceTool,
+  tokenPriceByAddressTool,
 
   // NFT operations
   nftsOwnedTool,
@@ -47,6 +49,7 @@ export {
   tokenBalanceTool,
   tokenMetadataTool,
   tokenPriceTool,
+  tokenPriceByAddressTool,
 
   // NFT tools
   nftsOwnedTool,
@@ -65,7 +68,7 @@ export {
 
 // Tool categories for UI organization
 export const toolCategories = {
-  tokens: [tokenBalanceTool, tokenMetadataTool, tokenPriceTool],
+  tokens: [tokenBalanceTool, tokenMetadataTool, tokenPriceTool, tokenPriceByAddressTool],
   nfts: [nftsOwnedTool],
   account: [balanceTool, transactionHistoryTool],
   transactions: [estimateGasTool],
