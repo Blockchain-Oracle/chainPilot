@@ -59,32 +59,22 @@ These are real Alchemy APIs but not essential for MVP:
 
 ---
 
-## ✅ Coinbase AgentKit Tools (Available)
+## 🚫 Transaction Tools (Not Currently Implemented)
 
-These tools are **automatically available** when you configure AgentKit with the ADK agent:
+**Note:** We do NOT currently use Coinbase AgentKit or have transaction execution tools.
 
-### Swap & DEX Operations
-- ✅ `swap_token` - Execute token swaps
-- ✅ `get_swap_quote` - Get swap quotes
-- ✅ `approve_token_for_swap` - Approve token spending
+### For Transactions (Would Need Frontend Implementation):
+- 🔲 Send ETH/tokens - Would use Wagmi + user's wallet (MetaMask)
+- 🔲 Token swaps - Would use Wagmi + DEX aggregator
+- 🔲 Contract interactions - Would use Wagmi + user signs
 
-### Transaction Operations
-- ✅ `send_transaction` - Send ETH/tokens
-- ✅ `deploy_contract` - Deploy smart contracts
-- ✅ `interact_with_contract` - Call contract functions
+**Current Architecture:**
+- ✅ Backend: ADK + Alchemy tools (READ-ONLY data queries)
+- ✅ Frontend: Wagmi/RainbowKit (wallet connection)
+- ❌ Transaction execution: Not yet implemented
+- ❌ AgentKit: Not configured or used
 
-### Wallet Operations
-- ✅ `get_wallet_address` - Get wallet address
-- ✅ `request_funds_from_faucet` - Get testnet funds
-
-### DeFi Operations
-- ✅ `stake_eth` - Stake ETH
-- ✅ `unstake_eth` - Unstake ETH
-- ✅ `get_staking_balance` - Check staking
-
-**And 40+ more tools...**
-
-See: https://docs.cdp.coinbase.com/agentkit/docs/tools
+See: `ACTUAL_ARCHITECTURE.md` for correct architecture
 
 ---
 
@@ -112,39 +102,44 @@ See: `lib/adk/tools/swaps/README.md` for full explanation
 
 ## 📊 Coverage Summary
 
-| Category | Implemented | Available via AgentKit | Total |
-|----------|-------------|------------------------|-------|
-| Token Operations | 4 | - | 4 |
-| NFT Operations | 1 | - | 1 |
-| Account Operations | 2 | - | 2 |
-| Transaction Operations | 1 | 3+ | 4+ |
-| Swap Operations | 0 | 3+ | 3+ |
-| Utility Operations | 2 | - | 2 |
-| **Total** | **10** | **50+** | **60+** |
+| Category | Implemented | Status |
+|----------|-------------|--------|
+| Token Operations | 4 | ✅ Production Ready |
+| NFT Operations | 1 | ✅ Production Ready |
+| Account Operations | 2 | ✅ Production Ready |
+| Transaction Operations | 1 (gas estimation) | ✅ Production Ready |
+| Swap Operations | 0 | ❌ Not Implemented |
+| Utility Operations | 2 | ✅ Production Ready |
+| **Total** | **10 Read-Only Tools** | **✅ Data Queries Working** |
 
 ---
 
 ## 🎯 Tool Usage Guidelines
 
-### Use Alchemy Tools For:
-- ✅ Querying blockchain data (balances, NFTs, transactions)
-- ✅ Getting market data (prices, gas fees)
-- ✅ Looking up information (ENS, metadata)
+### Current Capabilities:
+- ✅ Query blockchain data (balances, NFTs, transactions)
+- ✅ Get market data (prices, gas fees)
+- ✅ Look up information (ENS, metadata)
+- ❌ Execute transactions (not yet implemented)
+- ❌ Sign transactions (would use user's wallet via Wagmi)
 
-### Use AgentKit Tools For:
-- ✅ Executing transactions (swaps, transfers, contract calls)
-- ✅ Wallet operations (signing, approvals)
-- ✅ DeFi interactions (staking, lending)
-
-### Architecture:
+### Actual Architecture:
 ```
-User Query
+User Question
     ↓
 ADK Agent (Gemini)
     ↓
-  ├─→ Alchemy Tools (Read blockchain data)
-  └─→ AgentKit Tools (Execute transactions)
+Alchemy Tools (10 read-only tools)
+    ↓
+Alchemy API (blockchain data)
+    ↓
+Display Results
 ```
+
+**For transactions (future):**
+- Would use Wagmi/Viem to send transactions
+- User signs in their own wallet (MetaMask)
+- Backend does NOT sign transactions
 
 ---
 
