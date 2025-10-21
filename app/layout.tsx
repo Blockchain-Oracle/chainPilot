@@ -1,6 +1,8 @@
+import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ClientProviders } from "@/components/providers/client-providers";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Web3Provider } from "@/components/providers/web3-provider";
 
 import "./globals.css";
 
@@ -68,10 +70,18 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">
-        <ClientProviders>
-          {children}
-        </ClientProviders>
+      <body className="antialiased bg-background dark" style={{ backgroundColor: 'hsl(240deg 10% 3.92%)' }}>
+        <Web3Provider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            // enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster position="top-center" />
+            {children}
+          </ThemeProvider>
+        </Web3Provider>
       </body>
     </html>
   );

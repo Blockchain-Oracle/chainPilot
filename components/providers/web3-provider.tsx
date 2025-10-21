@@ -42,11 +42,11 @@ const config = getDefaultConfig({
 });
 
 export function Web3Provider({ children }: { children: ReactNode }) {
-  // Create a new QueryClient instance for each request to avoid sharing state
+  // Create query client inside component to avoid re-initialization
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        // Prevent refetching on window focus in the terminal UI
+        // Disable refetch on window focus during SSR
         refetchOnWindowFocus: false,
       },
     },
@@ -57,8 +57,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           theme={darkTheme({
-            accentColor: 'hsl(26, 78%, 61%)',
-            accentColorForeground: 'hsl(220, 13%, 8%)',
+            accentColor: '#fc8d36',
+            accentColorForeground: 'white',
             borderRadius: 'medium',
             fontStack: 'system',
             overlayBlur: 'small',
