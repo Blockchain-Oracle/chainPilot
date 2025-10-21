@@ -1,10 +1,16 @@
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Web3Provider } from "@/components/providers/web3-provider";
 
 import "./globals.css";
+
+// Dynamically import Web3Provider with no SSR to avoid indexedDB errors
+const Web3Provider = dynamic(
+  () => import("@/components/providers/web3-provider").then(mod => mod.Web3Provider),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://chainpilot.vercel.app"),

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Navbar, NavbarLeft, NavbarRight } from "@/components/ui/navbar";
 import Navigation from "@/components/ui/navigation";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import AlchemyToolsSection from "@/components/alchemy-tools-section";
 
@@ -51,6 +51,7 @@ export default function LandingPage() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right">
+                  <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <nav className="grid gap-6 text-lg font-medium">
                     <Link href="/" className="flex items-center gap-2 text-xl font-bold">
                       <span>ChainPilot</span>
