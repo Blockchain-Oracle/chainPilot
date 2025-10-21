@@ -6,7 +6,7 @@
 
 ## Summary
 
-All 10 READ-ONLY Alchemy tools have been verified against the actual Alchemy API. Below are the actual API responses and confirmation that our tool implementations correctly handle these return types.
+All **14 ADK tools** have been verified! This includes **10 READ-ONLY data query tools** that call Alchemy API, and **4 TRANSACTION PREPARATION tools** that format transaction data for frontend signing (Wagmi/Viem). Below are the actual API responses and confirmation that our tool implementations correctly handle these return types.
 
 ---
 
@@ -456,6 +456,12 @@ All 10 READ-ONLY Alchemy tools have been verified against the actual Alchemy API
 ### ✅ Utility Tools (2)
 - `get_gas_price` - Current gas prices (EIP-1559)
 - `resolve_ens` - ENS name resolution
+
+### ✅ Transaction Preparation Tools (4)
+- `prepare_eth_transfer` - Prepare native ETH transfer for signing
+- `prepare_token_transfer` - Prepare ERC20 transfer for signing
+- `prepare_token_approval` - Prepare ERC20 approval for signing
+- `prepare_contract_call` - Prepare generic contract call for signing
 
 ---
 
