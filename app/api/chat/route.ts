@@ -138,13 +138,6 @@ export async function POST(request: NextRequest) {
     // Get ADK tools
     const tools = await getAlchemyTools();
 
-    // TEMPORARY: Use only converted tools until all are migrated
-    // See TOOL_CONVERSION_GUIDE.md for conversion instructions
-    const convertedTools = tools.slice(0, 1); // Only get_token_balance is converted
-    console.log('[API] Using converted tools only:', convertedTools.map(t => t.name));
-
-    // Create ADK agent WITHOUT session persistence (use in-memory only)
-    console.log('[API] Building ADK agent with tools:', convertedTools.length);
     const agentBuilder = AgentBuilder.create("alchemy_assistant")
       .withModel("gemini-2.0-flash-exp")
       .withDescription("Multi-chain blockchain assistant powered by Alchemy")
@@ -179,7 +172,7 @@ When users request blockchain operations:
 2. Validate all parameters
 3. Show clear results with explorer links
 4. Wait for confirmation on transactions`)
-      .withTools(...convertedTools);
+      .withTools(...tools);
 
     // DO NOT add session service - let ADK use default in-memory sessions
     console.log('[API] Using in-memory sessions (no persistence)')
