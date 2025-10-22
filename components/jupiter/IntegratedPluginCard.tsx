@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles } from 'lucide-react';
-import { useAccount, useWalletClient } from 'wagmi';
 import type { IInit } from '@/types/plugin';
 
 interface IntegratedPluginCardProps {
@@ -28,8 +27,6 @@ interface IntegratedPluginCardProps {
  * Used when user requests the plugin via jupiter_show_plugin tool
  */
 export function IntegratedPluginCard({ result }: IntegratedPluginCardProps) {
-  const { address, isConnected } = useAccount();
-  const { data: walletClient } = useWalletClient();
   const initializedRef = useRef(false);
   const containerIdRef = useRef(`jupiter-integrated-${Math.random().toString(36).substring(7)}`);
 
@@ -50,21 +47,15 @@ export function IntegratedPluginCard({ result }: IntegratedPluginCardProps) {
 
     console.log('[IntegratedPluginCard] Initializing Jupiter Plugin', {
       containerId: containerIdRef.current,
-      isConnected,
-      hasWallet: !!walletClient,
       formProps: result.data.formProps,
     });
 
-    // Initialize config
+    // Initialize config - Let Jupiter handle wallet connections
     const config: IInit = {
       displayMode: 'integrated',
       integratedTargetId: containerIdRef.current,
       localStoragePrefix: 'chainpilot-jupiter',
       defaultExplorer: 'Solscan',
-
-      // Wallet passthrough
-      enableWalletPassthrough: true,
-      passthroughWalletContextState: walletClient as any,
 
       // Container styling to match VeChain design
       containerStyles: {
@@ -99,18 +90,7 @@ export function IntegratedPluginCard({ result }: IntegratedPluginCardProps) {
     } catch (error) {
       console.error('[IntegratedPluginCard] Failed to initialize plugin:', error);
     }
-  }, [result, walletClient, isConnected]);
-
-  // Sync wallet state when it changes
-  useEffect(() => {
-    if (!initializedRef.current || !window.Jupiter) return;
-
-    console.log('[IntegratedPluginCard] Syncing wallet state', { isConnected, address });
-
-    window.Jupiter.syncProps({
-      passthroughWalletContextState: walletClient as any,
-    });
-  }, [walletClient, isConnected, address]);
+  }, [result]);
 
   if (!result.success || !result.data) {
     return (
@@ -155,7 +135,7 @@ export function IntegratedPluginCard({ result }: IntegratedPluginCardProps) {
         <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
           <p className="text-sm text-blue-400">
             💡 <strong>Tip:</strong> Jupiter aggregates the best prices across all Solana DEXs.
-            Your swap is secured by your connected wallet.
+            Click "Connect Wallet" above to connect a Solana wallet (Phantom, Solflare, etc.).
           </p>
         </div>
       </CardContent>
