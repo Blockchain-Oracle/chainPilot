@@ -7,9 +7,8 @@
 
 import { AgentBuilder, createDatabaseSessionService } from "@iqai/adk";
 import { getAlchemyTools, getJupiterTools, getWeb3ResearchTools } from "./tools";
-
 // Force pg module to be loaded (fixes Vercel production build issue)
-require('pg');
+import 'pg';
 
 const APP_NAME = "chainpilot";
 
