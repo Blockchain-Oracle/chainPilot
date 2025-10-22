@@ -243,10 +243,10 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
   };
 
   return (
-    <div data-testid="suggested-actions" className="w-full space-y-4">
+    <div data-testid="suggested-actions" className="w-full max-w-full space-y-4 overflow-hidden">
       {/* Category Pills - Terminal Style */}
-      <div className="w-full overflow-x-auto">
-        <div className="flex gap-2 pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="w-full max-w-full mobile-scroll-container">
+        <div className="mobile-flex-container gap-2 pb-2 snap-x snap-mandatory">
           {categories.map((category, index) => (
             <motion.button
               key={category.name}
@@ -285,15 +285,15 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
       </div>
 
       {/* Action Cards - Terminal Card Style */}
-      <div className="w-full overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <div className="flex gap-2 sm:gap-3">
+      <div className="w-full max-w-full mobile-scroll-container pb-2">
+        <div className="mobile-flex-container gap-2 sm:gap-3">
             {categories[activeCategory].actions.map((suggestedAction, index) => (
               <motion.div
                 key={`${suggestedAction.title}-${index}`}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.05 * index }}
-                className="flex-shrink-0 w-[260px] sm:w-[280px] md:w-[320px]"
+                className="mobile-card"
               >
                 <button
                   type="button"
@@ -345,7 +345,7 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="flex items-center justify-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-[#A0A0A0] pt-2 border-t border-[#2E2E2E]/50"
+        className="flex items-center justify-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-[#A0A0A0] pt-2 border-t border-[#2E2E2E]/50 px-2"
       >
         <Zap className="w-3 h-3 text-vet-accent flex-shrink-0" />
         <span className="text-center break-words">

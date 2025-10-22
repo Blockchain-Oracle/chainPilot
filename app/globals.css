@@ -94,6 +94,7 @@
     color: hsl(var(--foreground));
     min-height: 100vh;
     font-family: 'Inter', var(--font-geist), system-ui, sans-serif;
+    overflow-x: hidden;
   }
 
   body {
@@ -346,6 +347,39 @@
 
 .dark .suggestion-highlight:hover {
   background-color: rgb(226 0 140 / 0.4);
+}
+
+/* Mobile Scroll Containers */
+.mobile-scroll-container {
+  @apply overflow-x-auto overflow-y-visible;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mobile-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-flex-container {
+  @apply flex min-w-max;
+}
+
+.mobile-card {
+  @apply flex-shrink-0 w-[240px] sm:w-[260px] md:w-[280px] lg:w-[320px];
+}
+
+.mobile-text-container {
+  @apply break-words;
+}
+
+/* Prevent horizontal page scrolling */
+#__next {
+  overflow-x: hidden;
+}
+
+/* Ensure all main containers prevent horizontal overflow */
+main, .main-container {
+  overflow-x: hidden;
 }
 
 /* Animations */

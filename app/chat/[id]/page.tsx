@@ -75,7 +75,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-vet-bg">
+    <div className="min-h-screen bg-vet-bg overflow-x-hidden">
       <EnhancedChat chatId={chatId} />
     </div>
   );

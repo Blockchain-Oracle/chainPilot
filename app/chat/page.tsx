@@ -66,7 +66,7 @@ export default function ChatHomePage() {
 
   if (!isConnected) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-4 bg-vet-bg relative overflow-hidden">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-4 bg-vet-bg relative overflow-hidden overflow-x-hidden">
         {/* Ambient glow background */}
         <div className="vet-glow-bg" />
 
@@ -97,7 +97,7 @@ export default function ChatHomePage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-12 max-w-6xl w-full px-4 z-10"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-12 max-w-6xl w-full px-4 z-10 overflow-x-hidden"
         >
           <motion.div
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
