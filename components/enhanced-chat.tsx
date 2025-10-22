@@ -507,7 +507,7 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
         className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4 pb-2"
       >
         {messages.length === 0 && !isLoadingHistory && (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+          <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="mb-3 sm:mb-4 p-3 sm:p-4 rounded-full bg-vet-accent/10">
               <Image
                 src="/logo.png"
@@ -520,7 +520,7 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
             <h3 className="text-lg sm:text-xl font-semibold text-vet-text-primary mb-1.5 sm:mb-2">
               Welcome to ChainPilot
             </h3>
-            <p className="text-sm sm:text-base text-vet-text-secondary max-w-md">
+            <p className="text-sm sm:text-base text-vet-text-secondary max-w-md px-4">
               Your AI assistant for multi-chain blockchain operations and Web3 research.
               Ask me to check balances, track NFTs, prepare transactions, or research
               tokens across Ethereum, Base, and more.
