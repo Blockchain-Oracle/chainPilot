@@ -66,6 +66,7 @@ export function Chat({
     userId: session?.user?.id,
     walletAddress: walletAddress || undefined,
     onFinish: () => {
+      console.log('[Chat] onFinish called - refreshing sidebar history');
       mutate(unstable_serialize(getChatHistoryPaginationKey));
     },
     onError: (error) => {

@@ -1,7 +1,6 @@
-import { AgentBuilder, StreamingMode, RunConfig } from "@iqai/adk";
+import { AgentBuilder, StreamingMode, RunConfig, createDatabaseSessionService } from "@iqai/adk";
 import { getAlchemyTools } from "@/lib/adk/tools";
 import { getModelConfig } from "@/lib/ai/model-config";
-import { getRedisSessionService } from "@/lib/adk/redis-session";
 import { NextRequest } from "next/server";
 import {
   getChatById,
@@ -17,6 +16,12 @@ import type { ChatMessage } from "@/lib/types";
 // Force Node.js runtime (required for Alchemy SDK)
 export const runtime = 'nodejs';
 export const maxDuration = 60;
+
+// Create ADK database session service (reused across requests)
+// This will automatically create the required tables if they don't exist
+const adkSessionService = createDatabaseSessionService(
+  process.env.DATABASE_URL || 'postgresql://apple@localhost:5432/adk_terminal'
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -106,7 +111,7 @@ export async function POST(request: NextRequest) {
       })
       .join(' ');
 
-    // Save user message to DB
+    // Save user message to DB (for UI/sidebar display only)
     await saveMessages({
       messages: [{
         chatId: id,
@@ -118,48 +123,15 @@ export async function POST(request: NextRequest) {
       }],
     });
 
-    // Load conversation history from database (EXCLUDING the current user message we just saved)
-    const messagesFromDb = await getMessagesByChatId({ id });
-
-    // Convert database messages to ADK format
-    // ADK needs: { role: 'user' | 'model', parts: [{ text: string }] }
-    const conversationHistory = messagesFromDb
-      .filter(m => m.id !== message.id) // Exclude the current user message we just saved
-      .map(dbMsg => {
-        const parts = typeof dbMsg.parts === 'string' ? JSON.parse(dbMsg.parts) : dbMsg.parts;
-
-        // Extract text from parts
-        const textContent = parts
-          .map((part: any) => {
-            if (typeof part === 'string') return part;
-            if (part.type === 'text') return part.text || part.content || '';
-            return '';
-          })
-          .filter((text: string) => text.length > 0)
-          .join('\n');
-
-        return {
-          role: dbMsg.role === 'assistant' ? 'model' : dbMsg.role,
-          parts: textContent ? [{ text: textContent }] : []
-        };
-      })
-      .filter(msg => msg.parts.length > 0); // Only include messages with text content
-
     // Get model configuration
     const modelConfig = getModelConfig(selectedChatModel);
 
     // Get ADK tools
     const tools = await getAlchemyTools();
 
-    // Get Redis session service (falls back to in-memory if not configured)
-    // CRITICAL FIX: Await the session service initialization
-    const sessionService = await getRedisSessionService({
-      ttl: 24 * 60 * 60, // 24 hours
-      prefix: `chat:${id}:`,
-    });
-
-    // Build agent with proper ADK pattern and session management
-    let builder = AgentBuilder.create("chainpilot")
+    // Build agent with ADK's database session service
+    // ADK will automatically manage conversation history including tool calls/responses
+    const builder = AgentBuilder.create("chainpilot")
       .withModel(modelConfig.model)
       .withDescription("Multi-chain blockchain assistant powered by Alchemy")
       .withInstruction(`You are ChainPilot, an AI assistant for multi-chain blockchain interactions powered by Alchemy APIs.
@@ -193,15 +165,14 @@ When users request blockchain operations:
 2. Validate all parameters
 3. Show clear results with explorer links
 4. Wait for confirmation on transactions`)
-      .withTools(...tools);
+      .withTools(...tools)
+      .withSessionService(adkSessionService, {
+        userId: user.id,
+        appName: "chainpilot",
+        sessionId: id, // Use chat ID as session ID for consistency
+      });
 
-    // Only add session service if Redis is configured
-    if (sessionService) {
-      builder = builder.withSessionService(sessionService);
-    }
-
-    builder = builder.withQuickSession({ sessionId: `chat-${id}`, userId: user.id, appName: "chainpilot" });
-
+    // Build agent - ADK creates or retrieves existing session automatically
     const { runner, session } = await builder.build();
 
     // Create SSE stream from ADK events
@@ -213,14 +184,13 @@ When users request blockchain operations:
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // ADK handles all streaming automatically with proper session management
           const runConfig = new RunConfig();
           runConfig.streamingMode = StreamingMode.SSE;
 
+          // ADK automatically loads conversation history from the session
           for await (const event of runner.runAsync({
             userId: user.id,
             sessionId: session.id,
-            history: conversationHistory, // Send full conversation context
             newMessage: { parts: [{ text: userMessage }] },
             runConfig
           })) {

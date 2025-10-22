@@ -253,10 +253,13 @@ export function useADKChat({
                   throw new Error(data.error);
 
                 case 'finish':
+                  console.log('[useADKChat] Finish event received');
                   // Use setMessages with a callback to get the current state
                   setMessages(currentMessages => {
                     const finalMessage = currentMessages.find(m => m.id === assistantId);
+                    console.log('[useADKChat] Final message found:', !!finalMessage, 'onFinish exists:', !!onFinish);
                     if (finalMessage && onFinish) {
+                      console.log('[useADKChat] Calling onFinish callback');
                       onFinish(finalMessage);
                     }
                     return currentMessages;
