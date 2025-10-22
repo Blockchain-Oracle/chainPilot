@@ -136,7 +136,7 @@ function TokenCard({ token }: { token: MintInformation }) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="max-h-[600px] overflow-y-auto space-y-6 scrollbar-thin scrollbar-thumb-vet-accent/20 scrollbar-track-transparent hover:scrollbar-thumb-vet-accent/40">
         {/* Price Section */}
         <div>
           <h4 className="text-sm font-semibold mb-3">Price & Market</h4>

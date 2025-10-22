@@ -252,7 +252,7 @@ export function ContentCard({ result }: ContentCardProps) {
 
       {/* Actions */}
       <Card className="vet-glass-card border-vet-border">
-        <CardContent className="p-4">
+        <CardContent className="max-h-[600px] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-vet-accent/20 scrollbar-track-transparent hover:scrollbar-thumb-vet-accent/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Button

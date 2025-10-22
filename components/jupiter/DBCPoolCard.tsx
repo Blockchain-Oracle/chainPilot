@@ -86,7 +86,7 @@ export function DBCPoolCard({ result }: DBCPoolCardProps) {
         </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="max-h-[600px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-vet-accent/20 scrollbar-track-transparent hover:scrollbar-thumb-vet-accent/40">
         {!hasAnyPool ? (
           <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
             <p className="text-sm">This token does not have DBC pool addresses configured.</p>

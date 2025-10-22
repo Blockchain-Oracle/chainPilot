@@ -146,7 +146,7 @@ export function ResourceListCard({ result }: ResourceListCardProps) {
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
             <Card className="vet-glass-card border-vet-border hover:border-vet-accent/30 transition-colors">
-              <CardContent className="p-4">
+              <CardContent className="max-h-[600px] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-vet-accent/20 scrollbar-track-transparent hover:scrollbar-thumb-vet-accent/40">
                 <div className="space-y-3">
                   {/* Resource Header */}
                   <div className="flex items-center justify-between">
@@ -279,7 +279,7 @@ export function ResourceListCard({ result }: ResourceListCardProps) {
 
       {/* Summary */}
       <Card className="vet-glass-card border-vet-border">
-        <CardContent className="p-4">
+        <CardContent className="max-h-[600px] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-vet-accent/20 scrollbar-track-transparent hover:scrollbar-thumb-vet-accent/40">
           <div className="flex items-center justify-between text-sm">
             <span className="text-vet-text-secondary">
               Showing {resources.length} of {totalResources} resources

@@ -83,7 +83,7 @@ export function SwapQuoteCard({ result }: SwapQuoteCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="max-h-[600px] overflow-y-auto space-y-6 scrollbar-thin scrollbar-thumb-vet-accent/20 scrollbar-track-transparent hover:scrollbar-thumb-vet-accent/40">
         {/* Error Message */}
         {hasError && quote.errorMessage && (
           <div className="flex items-start gap-2 p-3 bg-red-500/20 border border-red-500/50 rounded-lg">

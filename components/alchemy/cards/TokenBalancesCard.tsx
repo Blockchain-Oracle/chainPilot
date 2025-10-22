@@ -147,7 +147,7 @@ export function TokenBalancesCard({ result }: TokenBalancesCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="max-h-[600px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-vet-accent/20 scrollbar-track-transparent hover:scrollbar-thumb-vet-accent/40">
         {/* Wallet Address */}
         <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
           <span className="text-sm text-muted-foreground">Wallet</span>
