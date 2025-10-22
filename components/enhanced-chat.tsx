@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Markdown } from "@/components/markdown";
 import Image from "next/image";
+import { ChatSuggestedActions } from "@/components/chat-suggested-actions";
 
 // Import Alchemy card components for generative UI
 import { BalanceCard } from "@/components/alchemy/cards/BalanceCard";
@@ -526,24 +527,8 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
             </p>
 
             {/* Suggested Actions */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
-              {[
-                "Check my ETH balance",
-                "Research Bitcoin tokenomics",
-                "Show my NFTs on Base",
-                "What's the price of USDC?",
-              ].map((suggestion, idx) => (
-                <motion.button
-                  key={idx}
-                  onClick={() => setInput(suggestion)}
-                  className="vet-glass-card p-4 text-left hover:border-vet-accent/50 transition-all"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: idx * 0.1 }}
-                >
-                  <p className="text-sm text-vet-text-secondary">{suggestion}</p>
-                </motion.button>
-              ))}
+            <div className="mt-8">
+              <ChatSuggestedActions onSelectSuggestion={setInput} />
             </div>
           </div>
         )}
