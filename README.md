@@ -158,6 +158,10 @@ return new Response(stream, {
 
 ## System Architecture
 
+<img src="docs/architecture.png" alt="architecture png" />
+
+
+
 ```mermaid
 graph TB
     subgraph "Frontend Layer"
@@ -214,7 +218,11 @@ graph TB
     Stream --> Chat
 ```
 
+
 ### Component Architecture
+
+<img src="docs/component.png" alt="component png" />
+
 
 ```mermaid
 graph LR
