@@ -1,24 +1,25 @@
 "use client";
 
 import { motion } from "motion/react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { 
-  ChevronDown, 
+import {
+  ChevronDown,
   ChevronRight,
   HelpCircle,
   Wallet,
-  Coins,
   Shield,
   Code,
-  ArrowRightLeft,
   Activity,
   Zap,
   AlertCircle,
   CheckCircle,
-  Info
+  Info,
+  Sparkles,
+  Globe
 } from "lucide-react";
 
 interface FAQItem {
@@ -32,198 +33,193 @@ const faqData: FAQItem[] = [
   {
     category: "getting-started",
     question: "What is ChainPilot?",
-    answer: "ChainPilot is an AI-powered blockchain interface that allows you to interact with VeChain using natural language. Instead of navigating complex interfaces, you simply tell the AI what you want to accomplish - like 'check my VET balance' or 'bridge 1000 VET to Ethereum' - and it handles the technical complexity for you."
+    answer: "ChainPilot is an AI-powered multi-chain blockchain terminal built with Anthropic's ADK-TS framework. It allows you to interact with 15+ blockchains using natural language - simply tell the AI what you want to accomplish like 'check my ETH balance on Base' or 'show my NFTs across all chains' and it handles the technical complexity."
   },
   {
     category: "getting-started",
     question: "How do I get started with ChainPilot?",
-    answer: "Getting started is simple: 1) Connect your VeChain wallet (VeWorld or compatible), 2) Start typing what you want to do in natural language, 3) The AI will guide you through each step and handle the blockchain interactions. No technical knowledge required!"
+    answer: "Getting started is simple: 1) Connect your wallet (MetaMask, Coinbase Wallet, Rainbow, or any WalletConnect-compatible wallet), 2) Start typing what you want to do in natural language, 3) The ADK-TS agent will guide you through each step. No technical knowledge required!"
   },
   {
     category: "getting-started",
-    question: "What wallets are supported?",
-    answer: "ChainPilot supports VeWorld (the official VeChain wallet) and other VeChain-compatible wallets through VeChain DApp Kit integration. Make sure your wallet is connected to the correct network (mainnet or testnet)."
+    question: "What blockchains does ChainPilot support?",
+    answer: "ChainPilot supports 15+ blockchains including Ethereum, Base, Arbitrum, Optimism, Polygon, Polygon zkEVM, zkSync, Scroll, Blast, Linea, Avalanche, BNB Chain, Fantom, and Solana. All EVM chains are powered by Alchemy's infrastructure, and Solana by Jupiter Ultra API."
   },
   {
     category: "getting-started",
     question: "Is ChainPilot free to use?",
-    answer: "Yes, ChainPilot is free to use. You only pay standard VeChain network fees (in VTHO) for transactions you choose to execute. The AI interface and all tools are provided at no additional cost."
+    answer: "Yes, ChainPilot is free to use. You only pay standard network gas fees for transactions you choose to execute. The AI interface and all blockchain tools are provided at no additional cost."
+  },
+  {
+    category: "getting-started",
+    question: "What is ADK-TS?",
+    answer: "ADK-TS (Agent Development Kit for TypeScript) is Anthropic's framework for building stateful AI agents. ChainPilot is built entirely on ADK-TS, which provides session persistence, tool registration, streaming responses, and intelligent conversation management."
   },
 
-  // Wallet & Transactions
+  // Wallet & Balances
   {
     category: "wallet",
-    question: "How do I check my VET and VTHO balance?",
-    answer: "Simply ask: 'What's my VET and VTHO balance?' or 'Show my wallet balance'. The AI will instantly fetch and display your current native token balances, including any staked VET."
-  },
-  {
-    category: "wallet",
-    question: "Can I send VET and VTHO to other addresses?",
-    answer: "Yes! Just say something like 'Send 100 VET to [address]' or 'Transfer 500 VTHO to my friend'. The AI will check your balance, calculate fees, and create the transaction for you to approve."
-  },
-  {
-    category: "wallet",
-    question: "What about VIP-180 tokens like B3TR or WoV?",
-    answer: "ChainPilot supports all VIP-180 tokens. Try: 'Send 50 B3TR to [address]' or 'What's the price of WoV?'. The AI automatically handles token contracts, decimals, and approvals."
+    question: "What wallets are supported?",
+    answer: "ChainPilot supports all major multi-chain wallets through RainbowKit integration: MetaMask, Coinbase Wallet, Rainbow, WalletConnect, Trust Wallet, and more. For Solana operations, you can also use Phantom wallet."
   },
   {
     category: "wallet",
-    question: "How does gas fee management work?",
-    answer: "The AI automatically reserves VTHO for gas fees and will never let you spend 100% of your balance. It calculates optimal gas amounts and warns you if you have insufficient VTHO for transactions."
+    question: "How do I check my token balances?",
+    answer: "Simply ask: 'What's my ETH balance on Base?' or 'Show all my token balances'. The AI will fetch and display your native and ERC20 token balances across all connected chains instantly."
+  },
+  {
+    category: "wallet",
+    question: "Can I view my NFT collection?",
+    answer: "Yes! Ask 'Show me my NFTs' or 'What NFTs do I own?' and ChainPilot will display all your NFTs across supported chains with metadata, images, and collection information."
+  },
+  {
+    category: "wallet",
+    question: "How do I check balances on specific chains?",
+    answer: "You can specify the chain in your query: 'Check my USDC balance on Arbitrum' or 'What's my ETH on Optimism?'. The AI understands chain names and will query the correct network."
   },
 
-  // Cross-Chain Bridge
+  // Multi-Chain Operations
   {
-    category: "bridge",
-    question: "What blockchains can I bridge to from VeChain?",
-    answer: "ChainPilot supports bridging to 25+ blockchains including Ethereum, BSC, Polygon, Arbitrum, Optimism, Base, Avalanche, and many more. Ask 'What chains can I bridge to?' to see all available options."
+    category: "multichain",
+    question: "How does multi-chain support work?",
+    answer: "ChainPilot uses Alchemy's multi-chain infrastructure for EVM chains and Jupiter Ultra for Solana. You can query data, check balances, and get information across all supported chains from a single interface."
   },
   {
-    category: "bridge",
-    question: "How do I bridge VET to another blockchain?",
-    answer: "Just say 'Bridge 1000 VET to Ethereum' or your desired destination. The AI will check bridge quotas, calculate fees, and guide you through the approval and bridging process step by step."
+    category: "multichain",
+    question: "Can I compare balances across chains?",
+    answer: "Yes! Ask 'Show my USDC balance across all chains' and the AI will aggregate and display your balances from Ethereum, Base, Arbitrum, Polygon, and other supported networks."
   },
   {
-    category: "bridge",
-    question: "What's the difference between WanBridge and XFlows?",
-    answer: "WanBridge is for direct token transfers between chains. XFlows adds DEX integration for swap+bridge combinations - like 'Swap VET for ETH on Ethereum'. XFlows offers 6 different work modes for various cross-chain strategies."
+    category: "multichain",
+    question: "What Solana features are available?",
+    answer: "For Solana, ChainPilot provides token balance queries, token metadata, price data, and DEX swap quotes through Jupiter Ultra API integration. More Solana features are coming soon!"
   },
   {
-    category: "bridge",
-    question: "How long do bridge transactions take?",
-    answer: "Bridge times vary by destination chain and network congestion. Typically 5-30 minutes. The AI will provide real-time status updates and notify you when transfers complete. You can ask 'Check my bridge transaction status' anytime."
-  },
-  {
-    category: "bridge",
-    question: "Are there limits on bridge amounts?",
-    answer: "Yes, each bridge route has minimum and maximum limits that change based on liquidity. The AI will check current quotas and fees before creating transactions, ensuring your amount is within valid ranges."
+    category: "multichain",
+    question: "How do I switch between chains?",
+    answer: "You don't need to manually switch! Simply mention the chain name in your query: 'Check gas price on Ethereum' or 'Show NFTs on Polygon'. The AI handles chain routing automatically."
   },
 
-  // StarGate Staking
+  // Transactions & Gas
   {
-    category: "staking",
-    question: "What is StarGate staking?",
-    answer: "StarGate is VeChain's official VET staking protocol that mints NFTs representing your stake. There are 10 testnet levels from Dawn (1 VET) to Mjolnir X (1560 VET), with different tiers: New Eco, Eco, and X-Series, each with different reward multipliers and maturity periods."
+    category: "transactions",
+    question: "How do I check transaction history?",
+    answer: "Ask 'Show my recent transactions' or 'What are my latest transactions on Base?' and the AI will display your transaction history with details like value, gas used, and status."
   },
   {
-    category: "staking",
-    question: "How do I stake VET with StarGate?",
-    answer: "Say 'Stake 5 VET for Lightning level' or 'Show me staking options'. The AI will display all levels, requirements, and rewards, then help you create the staking transaction to mint your StarGate NFT."
+    category: "transactions",
+    question: "Can I check gas prices?",
+    answer: "Yes! Say 'What's the current gas price on Ethereum?' or 'Show me gas prices across chains'. ChainPilot provides real-time gas price data to help you optimize transaction timing."
   },
   {
-    category: "staking",
-    question: "What are X-Series staking levels?",
-    answer: "X-Series levels (VeThor X, Strength X, Thunder X, Mjolnir X) have no maturity period and can be unstaked immediately. They offer higher reward multipliers but require more VET (60, 160, 560, 1560 VET respectively on testnet)."
+    category: "transactions",
+    question: "How do I look up a specific transaction?",
+    answer: "Provide the transaction hash: 'Show me details for transaction 0x...' and the AI will fetch and explain the transaction details including status, gas used, and any events."
   },
   {
-    category: "staking",
-    question: "How do I claim staking rewards?",
-    answer: "Ask 'Claim my staking rewards' or 'Show my StarGate stakes'. The AI will display all your stakes, claimable VTHO amounts, and create claiming transactions for any mature rewards."
-  },
-  {
-    category: "staking",
-    question: "When can I unstake my VET?",
-    answer: "Standard levels (Dawn, Lightning, Flash) have maturity periods (20-50 days). X-Series can be unstaked anytime. Check with 'Show my stakes' - the AI will indicate which are ready for unstaking."
+    category: "transactions",
+    question: "Can I estimate transaction costs?",
+    answer: "Yes, ask 'Estimate gas for sending ETH' or 'What would it cost to transfer tokens on Arbitrum?' and the AI will provide gas estimates based on current network conditions."
   },
 
-  // Smart Contracts
+  // ENS & Name Services
   {
-    category: "contracts",
-    question: "Can I verify smart contracts?",
-    answer: "Yes! Upload your source code and say 'Verify my smart contract'. The AI supports both standard JSON input and metadata-based verification. It handles compiler versions, optimization settings, and submission to VeChainStats."
+    category: "ens",
+    question: "Does ChainPilot support ENS names?",
+    answer: "Yes! You can use ENS names instead of addresses: 'Check balance for vitalik.eth' or 'Show NFTs owned by ethereum.eth'. The AI automatically resolves ENS names to addresses."
   },
   {
-    category: "contracts",
-    question: "How do I interact with custom smart contracts?",
-    answer: "Describe what you want to do: 'Call the transfer function on contract [address]' or 'Execute mint function with parameters'. The AI will help build the transaction with proper function signatures and parameters."
+    category: "ens",
+    question: "Can I do reverse ENS lookups?",
+    answer: "Absolutely! Provide any address and ask 'What's the ENS name for 0x...' and ChainPilot will perform a reverse lookup to find associated ENS names."
   },
   {
-    category: "contracts",
-    question: "Can I view contract source code?",
-    answer: "For verified contracts, ask 'Show me the source code for [contract address]'. The AI will fetch verification details, source files, compiler settings, and ABI information from VeChainStats."
-  },
-
-  // NFTs
-  {
-    category: "nfts",
-    question: "How do I manage my VeChain NFTs?",
-    answer: "Ask 'What NFTs do I own?' or 'Show my NFT collections'. The AI will display all your VIP-181 NFTs with collection details, floor prices, and transfer history."
-  },
-  {
-    category: "nfts",
-    question: "Can I transfer NFTs?",
-    answer: "Yes, say 'Transfer my NFT [token ID] to [address]' or 'Send my VeChain Punk to my friend'. The AI will verify ownership and create the transfer transaction."
-  },
-  {
-    category: "nfts",
-    question: "How do I track NFT trading activity?",
-    answer: "Use 'Show my NFT transfer history' to see all your NFT trades, purchases, and sales. The AI provides detailed transaction history with timestamps and values."
+    category: "ens",
+    question: "How do I get ENS avatar images?",
+    answer: "ENS avatars are automatically displayed when available. Ask 'Show me the avatar for vitalik.eth' to retrieve NFT or URL-based avatars associated with ENS names."
   },
 
-  // Analytics & Data
+  // DeFi & Swap Quotes
   {
-    category: "analytics",
-    question: "How do I check VeChain network status?",
-    answer: "Ask 'What's the VeChain network status?' for real-time metrics including block height, transaction volume, active addresses, and authority node performance."
+    category: "defi",
+    question: "Can I get DEX swap quotes?",
+    answer: "Yes! For Solana, ask 'Get me a swap quote for 1 SOL to USDC' and Jupiter Ultra will provide real-time DEX quotes with routes and price impact. EVM DEX features coming soon!"
   },
   {
-    category: "analytics",
-    question: "Can I track my carbon footprint?",
-    answer: "Yes! ChainPilot calculates carbon emissions for your blockchain activities. Ask 'What's my carbon footprint?' to see environmental impact analysis of your transactions."
+    category: "defi",
+    question: "What DeFi data can I access?",
+    answer: "Currently: Solana token prices, swap quotes, and liquidity data via Jupiter. Token prices and metadata across all EVM chains via Alchemy. More DeFi features are in development!"
   },
   {
-    category: "analytics",
-    question: "How do I analyze transaction details?",
-    answer: "Provide any transaction hash: 'Analyze transaction 0x...' and get detailed information including gas usage, events, clauses, and success/failure status."
+    category: "defi",
+    question: "Can I track token prices?",
+    answer: "Yes! Ask 'What's the price of ETH?' or 'Show me SOL price in USD'. ChainPilot provides real-time token price data across supported chains."
+  },
+
+  // AI & ADK-TS Features
+  {
+    category: "ai",
+    question: "How does the AI understand my requests?",
+    answer: "ChainPilot uses ADK-TS agents powered by advanced language models (GPT-4o or Gemini 2.0 Flash). The agent is trained to understand blockchain terminology and natural language queries."
+  },
+  {
+    category: "ai",
+    question: "Does ChainPilot remember my conversation?",
+    answer: "Yes! ADK-TS provides session persistence, so the AI remembers context within each chat session. Your conversation history is stored securely and sessions persist across browser refreshes."
+  },
+  {
+    category: "ai",
+    question: "What blockchain tools does the AI have access to?",
+    answer: "The ADK-TS agent has 88+ specialized blockchain tools including: balance queries, NFT lookups, transaction analysis, gas price monitoring, ENS resolution, token metadata, swap quotes, and more."
+  },
+  {
+    category: "ai",
+    question: "Can I customize which AI model to use?",
+    answer: "Yes! ChainPilot supports multiple AI models including OpenAI's GPT-4o and Google's Gemini 2.0 Flash. You can configure your preferred model in the settings."
   },
 
   // Troubleshooting
   {
     category: "troubleshooting",
     question: "Why isn't my wallet connecting?",
-    answer: "Common solutions: 1) Ensure VeWorld or your wallet is installed and unlocked, 2) Check you're on the correct network (mainnet/testnet), 3) Refresh the page and try reconnecting, 4) Clear browser cache if issues persist."
+    answer: "Common solutions: 1) Ensure your wallet extension is installed and unlocked, 2) Try refreshing the page, 3) Check you're using a supported wallet (MetaMask, Coinbase Wallet, Rainbow, etc.), 4) Clear browser cache if issues persist."
   },
   {
     category: "troubleshooting",
-    question: "Transaction failed - what went wrong?",
-    answer: "Provide the transaction hash and ask 'Why did my transaction fail?'. The AI will analyze the transaction, check for revert reasons, insufficient gas, or balance issues and explain what happened."
-  },
-  {
-    category: "troubleshooting",
-    question: "I have insufficient VTHO for transactions",
-    answer: "VTHO is generated automatically by holding VET. If you need VTHO immediately: 1) Wait for natural generation, 2) Swap for VTHO on a DEX, or 3) Ask 'How can I get more VTHO?' for current options."
-  },
-  {
-    category: "troubleshooting",
-    question: "Bridge transaction is stuck",
-    answer: "Bridge transactions can take time. Check status with 'Check my bridge transaction [hash]'. If stuck >1 hour, the AI can help you contact bridge support or check for refund options."
+    question: "The AI says it can't find my data",
+    answer: "Try these steps: 1) Verify your wallet is connected, 2) Make sure you specified the correct chain, 3) Check if the address/ENS name is valid, 4) Some chains may have delayed data - try again in a moment."
   },
   {
     category: "troubleshooting",
     question: "AI doesn't understand my request",
-    answer: "Try rephrasing more simply: instead of complex technical terms, use plain language like 'send tokens', 'check balance', or 'stake VET'. The AI is trained on natural language patterns."
+    answer: "Try rephrasing more simply: instead of complex technical terms, use plain language like 'check balance', 'show NFTs', or 'what's the gas price'. The AI is trained on natural conversation patterns."
+  },
+  {
+    category: "troubleshooting",
+    question: "How do I report a bug or issue?",
+    answer: "If you encounter bugs or issues, please report them on our GitHub repository. Include details about what you were trying to do and any error messages you received."
   },
 
-  // Advanced Features
+  // Advanced & Technical
   {
     category: "advanced",
-    question: "What's the difference between mainnet and testnet?",
-    answer: "Mainnet uses real VET/VTHO with value. Testnet uses test tokens for development. ChainPilot works on both - it automatically detects your network and adjusts accordingly."
+    question: "What API providers does ChainPilot use?",
+    answer: "ChainPilot uses Alchemy for EVM chain data (Ethereum, Base, Arbitrum, Optimism, Polygon, etc.) and Jupiter Ultra API for Solana operations. Both provide enterprise-grade, reliable blockchain infrastructure."
   },
   {
     category: "advanced",
-    question: "Can I batch multiple transactions?",
-    answer: "Currently, transactions are processed individually for safety. However, you can queue multiple requests: 'Send VET to Alice, then check my balance, then stake 1M VET' and the AI will handle them sequentially."
+    question: "How is user data handled?",
+    answer: "ChainPilot only accesses public blockchain data. Your private keys never leave your wallet. Conversation history is stored securely with encryption. No private data is shared with third parties."
   },
   {
     category: "advanced",
-    question: "How does the AI ensure transaction safety?",
-    answer: "The AI implements multiple safety checks: balance verification, gas fee reserves, address validation, amount limits, and always requires your explicit approval before executing any transaction."
+    question: "Can I integrate ChainPilot into my app?",
+    answer: "ChainPilot is open source! Check our GitHub repository for the codebase. It's built with Next.js, ADK-TS, and modern Web3 libraries - perfect for learning or integrating into your own projects."
   },
   {
     category: "advanced",
-    question: "What data does ChainPilot access?",
-    answer: "Only public blockchain data (balances, transactions, contracts) and what you explicitly share. Your private keys never leave your wallet. The AI cannot access private information or execute transactions without your approval."
+    question: "What's the difference between ChainPilot and other blockchain interfaces?",
+    answer: "ChainPilot is built specifically with ADK-TS for stateful conversational AI. Unlike traditional block explorers, it understands natural language, maintains conversation context, and provides AI-powered insights across 15+ chains from one interface."
   }
 ];
 
@@ -236,39 +232,39 @@ const categories = [
   },
   {
     id: "wallet",
-    name: "Wallet & Transactions",
+    name: "Wallet & Balances",
     icon: Wallet,
-    description: "Managing balances, sending tokens, and transactions"
+    description: "Managing wallets and checking balances"
   },
   {
-    id: "bridge",
-    name: "Cross-Chain Bridge",
-    icon: ArrowRightLeft,
-    description: "Bridging assets to other blockchains"
+    id: "multichain",
+    name: "Multi-Chain",
+    icon: Globe,
+    description: "Multi-chain operations and support"
   },
   {
-    id: "staking",
-    name: "StarGate Staking",
-    icon: Shield,
-    description: "VET staking and NFT rewards"
+    id: "transactions",
+    name: "Transactions & Gas",
+    icon: Activity,
+    description: "Transaction history and gas prices"
   },
   {
-    id: "contracts",
-    name: "Smart Contracts",
+    id: "ens",
+    name: "ENS & Names",
     icon: Code,
-    description: "Contract verification and interactions"
+    description: "ENS resolution and name services"
   },
   {
-    id: "nfts",
-    name: "NFTs",
-    icon: Activity,
-    description: "VIP-181 NFT management"
+    id: "defi",
+    name: "DeFi & Swaps",
+    icon: Zap,
+    description: "DEX quotes and token prices"
   },
   {
-    id: "analytics",
-    name: "Analytics & Data",
-    icon: Activity,
-    description: "Network stats and analytics"
+    id: "ai",
+    name: "AI & ADK-TS",
+    icon: Sparkles,
+    description: "AI features and capabilities"
   },
   {
     id: "troubleshooting",
@@ -278,9 +274,9 @@ const categories = [
   },
   {
     id: "advanced",
-    name: "Advanced Features",
-    icon: Zap,
-    description: "Technical details and advanced usage"
+    name: "Advanced",
+    icon: Shield,
+    description: "Technical details and integrations"
   }
 ];
 
@@ -288,8 +284,8 @@ function FAQCategory({ category, items }: { category: typeof categories[0], item
   const [openItems, setOpenItems] = useState<number[]>([]);
 
   const toggleItem = (index: number) => {
-    setOpenItems(prev => 
-      prev.includes(index) 
+    setOpenItems(prev =>
+      prev.includes(index)
         ? prev.filter(i => i !== index)
         : [...prev, index]
     );
@@ -366,15 +362,15 @@ export default function FaqPage() {
           <HelpCircle className="mr-2 h-3 w-3" />
           <span className="text-muted-foreground">FAQ</span>
         </Badge>
-        
+
         <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
           Frequently Asked Questions
         </h1>
         <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mb-8">
-          Find answers to common questions about ChainPilot. From basic wallet operations to advanced cross-chain bridging, 
+          Find answers to common questions about ChainPilot. From wallet connections to multi-chain operations,
           we've got you covered.
         </p>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl">
           <div className="text-center p-4 bg-card/50 rounded-lg border">
             <div className="text-2xl font-bold text-primary">{faqData.length}</div>
@@ -385,12 +381,12 @@ export default function FaqPage() {
             <div className="text-sm text-muted-foreground">Categories</div>
           </div>
           <div className="text-center p-4 bg-card/50 rounded-lg border">
-            <div className="text-2xl font-bold text-primary">90+</div>
+            <div className="text-2xl font-bold text-primary">88+</div>
             <div className="text-sm text-muted-foreground">AI Tools</div>
           </div>
           <div className="text-center p-4 bg-card/50 rounded-lg border">
-            <div className="text-2xl font-bold text-primary">24/7</div>
-            <div className="text-sm text-muted-foreground">AI Support</div>
+            <div className="text-2xl font-bold text-primary">15+</div>
+            <div className="text-sm text-muted-foreground">Chains</div>
           </div>
         </div>
       </motion.div>
@@ -423,9 +419,9 @@ export default function FaqPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <FAQCategory 
-            category={categories.find(cat => cat.id === selectedCategory)!} 
-            items={faqData.filter(faq => faq.category === selectedCategory)} 
+          <FAQCategory
+            category={categories.find(cat => cat.id === selectedCategory)!}
+            items={faqData.filter(faq => faq.category === selectedCategory)}
           />
         </motion.div>
       </div>
@@ -445,17 +441,21 @@ export default function FaqPage() {
           </div>
           <h3 className="text-2xl font-bold mb-4">Still Have Questions?</h3>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Can't find what you're looking for? Try asking ChainPilot directly - 
+            Can't find what you're looking for? Try asking ChainPilot directly -
             it's designed to understand and answer questions in natural language.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <HelpCircle className="w-4 h-4 mr-2" />
-              Try ChainPilot
+            <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Link href="/chat">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Try ChainPilot
+              </Link>
             </Button>
-            <Button variant="outline">
-              <Info className="w-4 h-4 mr-2" />
-              Contact Support
+            <Button asChild variant="outline">
+              <Link href="/docs/getting-started">
+                <Info className="w-4 h-4 mr-2" />
+                Getting Started
+              </Link>
             </Button>
           </div>
         </Card>

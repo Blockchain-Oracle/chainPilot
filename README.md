@@ -253,10 +253,29 @@ graph LR
 
 ### Prerequisites
 
-- Node.js 18+ 
+**System Requirements:**
+- Node.js 18+
 - PostgreSQL database
-- Redis instance (optional, falls back to in-memory)
-- Alchemy API keys for blockchain networks
+- Redis instance (optional but recommended for production)
+
+**Required API Keys:**
+
+1. **Alchemy API Key** (https://dashboard.alchemy.com/)
+   - Provides multi-chain blockchain data for 15+ EVM chains
+   - Free tier includes 300M compute units/month
+
+2. **OpenAI API Key** (https://platform.openai.com/api-keys) OR **Google AI API Key** (https://makersuite.google.com/app/apikey)
+   - Powers the ADK-TS agent intelligence
+   - OpenAI: GPT-4o recommended for best results
+   - Google: Gemini 2.0 Flash or Gemini Pro
+
+3. **Jupiter API Key** (https://station.jup.ag/api-keys)
+   - Provides Solana token data and DEX aggregation
+   - Free tier available
+
+4. **WalletConnect Project ID** (https://cloud.walletconnect.com/)
+   - Enables multi-chain wallet connectivity via RainbowKit
+   - Free for unlimited projects
 
 ### Installation
 
@@ -278,23 +297,28 @@ cp .env.example .env.local
 
 Configure your environment variables:
 ```env
+# Required Services
+ALCHEMY_API_KEY="your_alchemy_api_key"
+NEXT_PUBLIC_ALCHEMY_API_KEY="your_alchemy_api_key"
+
+OPENAI_API_KEY="your_openai_api_key"
+GOOGLE_API_KEY="your_google_api_key"
+GOOGLE_GENERATIVE_AI_API_KEY="your_google_api_key"
+
+JUPITER_API_KEY="your_jupiter_api_key"
+
+DEFAULT_MODEL="gpt-4o"
+
+NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID="your_walletconnect_project_id"
+
 # Database
 DATABASE_URL="postgresql://user:password@localhost:5432/adk_terminal"
 
-# Redis (optional)
+# Optional - Redis for production session persistence
 REDIS_URL="redis://localhost:6379"
 
-# AI Models
-OPENAI_API_KEY="your_openai_key"
-ANTHROPIC_API_KEY="your_anthropic_key"
-GOOGLE_API_KEY="your_google_key"
-
-# Alchemy APIs
-ALCHEMY_API_KEY_ETHEREUM="your_alchemy_key"
-ALCHEMY_API_KEY_BASE="your_alchemy_key"
-ALCHEMY_API_KEY_POLYGON="your_alchemy_key"
-ALCHEMY_API_KEY_ARBITRUM="your_alchemy_key"
-ALCHEMY_API_KEY_OPTIMISM="your_alchemy_key"
+# Application
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 4. **Database setup**

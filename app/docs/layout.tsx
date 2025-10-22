@@ -28,18 +28,6 @@ const docsNavigation = [
     description: "ADK-TS agent system design"
   },
   {
-    name: "API Reference",
-    href: "/docs/api-reference",
-    icon: FileText,
-    description: "Multi-chain API documentation"
-  },
-  {
-    name: "Integration Guides",
-    href: "/docs/integration-guides",
-    icon: Puzzle,
-    description: "How to integrate ChainPilot"
-  },
-  {
     name: "FAQ",
     href: "/docs/faq",
     icon: HelpCircle,

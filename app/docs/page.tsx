@@ -35,7 +35,7 @@ const quickStart = [
     step: "3",
     title: "Start Querying",
     description: "Begin managing blockchain data across EVM chains and Solana",
-    href: "/docs/api-reference"
+    href: "/chat"
   }
 ];
 
@@ -45,49 +45,42 @@ const featuredSections = [
     href: "/docs/getting-started",
     icon: BookOpen,
     description: "New to ChainPilot? Start here for a quick introduction and setup guide.",
-    badge: "Popular"
+    badge: "Start Here"
   },
   {
     name: "Architecture",
     href: "/docs/architecture",
     icon: Building2,
     description: "Learn how ChainPilot is built with ADK-TS for stateful AI agents.",
-    badge: "Essential"
+    badge: "Technical"
   },
   {
-    name: "API Reference",
-    href: "/docs/api-reference",
-    icon: FileText,
-    description: "Complete documentation for multi-chain APIs across EVM and Solana.",
+    name: "FAQ",
+    href: "/docs/faq",
+    icon: HelpCircle,
+    description: "Common questions and answers about using ChainPilot.",
     badge: "Helpful"
-  },
-  {
-    name: "Integration Guides",
-    href: "/docs/integration-guides",
-    icon: Puzzle,
-    description: "Step-by-step guides for integrating ChainPilot into your applications.",
-    badge: "Advanced"
   }
 ];
 
 const allSections = [
   {
+    name: "Getting Started",
+    href: "/docs/getting-started",
+    icon: BookOpen,
+    description: "Quick start guide and setup"
+  },
+  {
+    name: "Architecture",
+    href: "/docs/architecture",
+    icon: Building2,
+    description: "ADK-TS system architecture"
+  },
+  {
     name: "FAQ",
     href: "/docs/faq",
     icon: HelpCircle,
-    description: "Common questions and troubleshooting tips"
-  },
-  {
-    name: "API Reference",
-    href: "/docs/api-reference",
-    icon: FileText,
-    description: "Complete multi-chain API documentation"
-  },
-  {
-    name: "Integration Guides",
-    href: "/docs/integration-guides",
-    icon: Puzzle,
-    description: "Step-by-step integration guides"
+    description: "Common questions and answers"
   }
 ];
 

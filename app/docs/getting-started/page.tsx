@@ -9,8 +9,8 @@ import {
   MessageSquare,
   Search,
   Code,
-  ExternalLink,
-  Layers
+  Layers,
+  HelpCircle
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -290,7 +290,7 @@ export default function GettingStartedPage() {
           Now that you know the basics, explore these advanced topics:
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link href="/docs/architecture" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
             <Layers className="h-5 w-5 text-primary" />
             <div>
@@ -300,20 +300,11 @@ export default function GettingStartedPage() {
             <ArrowRight className="h-4 w-4 ml-auto" />
           </Link>
 
-          <Link href="/docs/api-reference" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-            <ExternalLink className="h-5 w-5 text-primary" />
+          <Link href="/docs/faq" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+            <HelpCircle className="h-5 w-5 text-primary" />
             <div>
-              <div className="font-medium">API Reference</div>
-              <div className="text-sm text-muted-foreground">Complete API documentation</div>
-            </div>
-            <ArrowRight className="h-4 w-4 ml-auto" />
-          </Link>
-
-          <Link href="/docs/integration-guides" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-            <Code className="h-5 w-5 text-primary" />
-            <div>
-              <div className="font-medium">Integration Guides</div>
-              <div className="text-sm text-muted-foreground">Integration tutorials</div>
+              <div className="font-medium">FAQ</div>
+              <div className="text-sm text-muted-foreground">Common questions and answers</div>
             </div>
             <ArrowRight className="h-4 w-4 ml-auto" />
           </Link>

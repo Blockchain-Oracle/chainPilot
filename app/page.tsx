@@ -31,6 +31,9 @@ export default function ChainPilotLanding() {
             <Link href="/about" className="hover:text-white transition hidden md:block">
               About
             </Link>
+            <Link href="/roadmap" className="hover:text-white transition hidden md:block">
+              Roadmap
+            </Link>
             <Button asChild className="vet-button-primary">
               <Link href="/chat">
                 Launch Terminal
@@ -250,13 +253,11 @@ export default function ChainPilotLanding() {
               <h3 className="font-semibold mb-3 text-vet-text-primary">Community</h3>
               <ul className="space-y-2 vet-caption">
                 <li>
-                  <a href="https://github.com" className="hover:text-vet-text-primary transition flex items-center">
+                  <a href="https://github.com/Blockchain-Oracle/chainPilot" target="_blank" rel="noopener noreferrer" className="hover:text-vet-text-primary transition flex items-center">
                     GitHub
                     <ExternalLink className="ml-1 h-3 w-3" />
                   </a>
                 </li>
-                <li><Link href="/chat" className="hover:text-vet-text-primary transition">Discord</Link></li>
-                <li><Link href="/chat" className="hover:text-vet-text-primary transition">Twitter</Link></li>
               </ul>
             </div>
           </div>

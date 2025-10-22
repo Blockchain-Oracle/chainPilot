@@ -15,15 +15,15 @@ export function PageHeader() {
       <div className="container mx-auto px-4">
         <Navbar>
           <NavbarLeft>
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold">
+            <Link href="/" className="flex items-center gap-1.5 md:gap-2 text-base md:text-xl font-bold">
               <Image
                 src="/logo.png"
                 alt="ChainPilot"
-                width={32}
-                height={32}
-                className="object-contain"
+                width={24}
+                height={24}
+                className="object-contain md:w-8 md:h-8"
               />
-              ChainPilot
+              <span className="text-sm md:text-xl">ChainPilot</span>
             </Link>
             <Navigation />
           </NavbarLeft>
@@ -34,10 +34,11 @@ export function PageHeader() {
             >
               Documentation
             </Link>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="sm" className="hidden md:flex text-xs md:text-sm px-2 md:px-4">
               <Link href="/chat">
-                Launch Terminal
-                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                <span className="hidden lg:inline">Launch Terminal</span>
+                <span className="lg:hidden">Launch</span>
+                <ArrowLeft className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4 rotate-180" />
               </Link>
             </Button>
             <Sheet>
@@ -60,6 +61,9 @@ export function PageHeader() {
                   </Link>
                   <Link href="/roadmap" className="text-muted-foreground hover:text-foreground">
                     Roadmap
+                  </Link>
+                  <Link href="/chat" className="text-primary font-semibold hover:text-primary/80">
+                    Launch Terminal →
                   </Link>
                 </nav>
               </SheetContent>
