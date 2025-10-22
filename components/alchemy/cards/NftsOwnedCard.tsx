@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
@@ -49,14 +49,18 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
   // Handle undefined or error results
   if (!result || !result.success || !result.data) {
     return (
-      <Card className="border-destructive/20 bg-card/50 backdrop-blur">
-        <CardHeader>
-          <CardTitle className="text-lg text-destructive">NFT Query Failed</CardTitle>
-          <CardDescription>
+      <motion.div
+        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        className="vet-glass-card"
+      >
+        <div className="px-6 py-6">
+          <h3 className="text-lg font-semibold text-vet-error">NFT Query Failed</h3>
+          <p className="text-sm text-vet-text-secondary mt-1">
             {result?.error || 'Failed to fetch NFTs'}
-          </CardDescription>
-        </CardHeader>
-      </Card>
+          </p>
+        </div>
+      </motion.div>
     );
   }
 
@@ -107,46 +111,66 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
 
   if (totalNFTs === 0) {
     return (
-      <Card className="border-primary/20 bg-card/50 backdrop-blur">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg">NFTs Owned</CardTitle>
-              <CardDescription>No NFTs found</CardDescription>
+      <motion.div
+        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        className="vet-glass-card"
+      >
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-vet-accent">
+                <ImageIcon className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-vet-text-primary">NFTs Owned</h3>
             </div>
-            <Badge variant="outline">{getChainName(chainId)}</Badge>
+            <Badge variant="outline" className="border-vet-accent/30 text-vet-accent">
+              {getChainName(chainId)}
+            </Badge>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
+          <p className="text-sm text-vet-text-secondary mt-1">No NFTs found</p>
+        </div>
+        <div className="px-6 pb-6">
+          <div className="text-center py-8 text-vet-text-secondary">
             <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>This wallet doesn't own any NFTs on {getChainName(chainId)}</p>
             <p className="text-sm mt-2">{shortenAddress(address)}</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </motion.div>
     );
   }
 
   return (
-    <Card className="border-primary/20 bg-card/50 backdrop-blur">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">NFTs Owned</CardTitle>
-            <CardDescription>
-              {totalNFTs} NFT{totalNFTs !== 1 ? 's' : ''} across {collections.length} collection{collections.length !== 1 ? 's' : ''}
-            </CardDescription>
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      className="vet-glass-card"
+    >
+      {/* Header */}
+      <div className="px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-vet-accent">
+              <ImageIcon className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-vet-text-primary">NFTs Owned</h3>
           </div>
-          <Badge variant="outline">{getChainName(chainId)}</Badge>
+          <Badge variant="outline" className="border-vet-accent/30 text-vet-accent">
+            {getChainName(chainId)}
+          </Badge>
         </div>
-      </CardHeader>
+        <p className="text-sm text-vet-text-secondary mt-1">
+          {totalNFTs} NFT{totalNFTs !== 1 ? 's' : ''} across {collections.length} collection{collections.length !== 1 ? 's' : ''}
+        </p>
+      </div>
 
-      <CardContent className="space-y-4">
+      {/* Content */}
+      <div className="px-6 pb-6 space-y-4">
         {/* Wallet Address */}
-        <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-          <span className="text-sm text-muted-foreground">Wallet</span>
-          <span className="text-sm font-mono">{shortenAddress(address)}</span>
+        <div className="vet-tool-card flex justify-between items-center">
+          <span className="text-sm text-vet-text-secondary">Wallet</span>
+          <span className="text-sm font-mono text-vet-text-primary">{shortenAddress(address)}</span>
         </div>
 
         {/* Collections */}
@@ -159,24 +183,24 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
                 {/* Collection Header */}
                 <button
                   onClick={() => toggleCollection(collection.name)}
-                  className="w-full p-4 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
+                  className="w-full p-4 flex items-center justify-between bg-vet-surface/50 hover:bg-vet-surface/70 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div>
-                      <div className="font-medium text-left">{collection.name}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="font-medium text-left text-vet-text-primary">{collection.name}</div>
+                      <div className="text-sm text-vet-text-secondary">
                         {collection.nfts.length} item{collection.nfts.length !== 1 ? 's' : ''} • {collection.tokenType}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs bg-vet-accent/20 text-vet-accent border-vet-accent/30">
                       {shortenAddress(collection.contract)}
                     </Badge>
                     {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
+                      <ChevronUp className="h-4 w-4 text-vet-text-secondary" />
                     ) : (
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-4 w-4 text-vet-text-secondary" />
                     )}
                   </div>
                 </button>
@@ -187,10 +211,10 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
                     {collection.nfts.map((nft) => (
                       <div
                         key={`${nft.contract}-${nft.tokenId}`}
-                        className="group relative rounded-lg overflow-hidden border bg-card hover:shadow-lg transition-all cursor-pointer"
+                        className="group relative rounded-lg overflow-hidden border border-vet-border bg-vet-surface/30 hover:shadow-lg transition-all cursor-pointer"
                       >
                         {/* NFT Image */}
-                        <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center overflow-hidden relative">
+                        <div className="aspect-square bg-gradient-to-br from-vet-surface/30 to-vet-surface/10 flex items-center justify-center overflow-hidden relative">
                           <NFTImage
                             image={{
                               cachedUrl: nft.image,
@@ -199,31 +223,31 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
                             alt={nft.name || `#${nft.tokenId}`}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             fallback={
-                              <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
-                                <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+                              <div className="absolute inset-0 bg-vet-surface/50 flex items-center justify-center">
+                                <ImageIcon className="h-12 w-12 text-vet-text-secondary/50" />
                               </div>
                             }
                           />
 
                           {/* Token Type Badge */}
-                          <Badge variant="secondary" className="absolute top-2 right-2 text-xs">
+                          <Badge variant="secondary" className="absolute top-2 right-2 text-xs bg-vet-accent/20 text-vet-accent border-vet-accent/30">
                             {nft.tokenType}
                           </Badge>
                         </div>
 
                         {/* NFT Info */}
                         <div className="p-3 space-y-1">
-                          <div className="font-medium text-sm truncate" title={nft.name}>
+                          <div className="font-medium text-sm truncate text-vet-text-primary" title={nft.name}>
                             {nft.name || `#${nft.tokenId}`}
                           </div>
 
                           {nft.description && (
-                            <div className="text-xs text-muted-foreground line-clamp-2" title={nft.description}>
+                            <div className="text-xs text-vet-text-secondary line-clamp-2" title={nft.description}>
                               {nft.description}
                             </div>
                           )}
 
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs text-vet-text-secondary">
                             Token ID: {nft.tokenId.length > 8 ? `${nft.tokenId.slice(0, 8)}...` : nft.tokenId}
                           </div>
 
@@ -232,7 +256,7 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
                             href={getExplorerUrl(nft.contract, nft.tokenId)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2"
+                            className="inline-flex items-center gap-1 text-xs text-vet-accent hover:underline mt-2"
                             onClick={(e) => e.stopPropagation()}
                           >
                             View <ExternalLink className="h-3 w-3" />
@@ -246,7 +270,7 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
             );
           })}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }

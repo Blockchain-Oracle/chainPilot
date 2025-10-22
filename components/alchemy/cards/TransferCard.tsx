@@ -20,13 +20,23 @@ import { Loader2, CheckCircle2, XCircle, ExternalLink, AlertTriangle } from 'luc
 interface TransferCardProps {
   result: {
     success: boolean;
-    data: EthTransferProps;
+    transaction?: EthTransferProps;
+    data?: EthTransferProps;
+    error?: string;
   };
 }
 
 export function TransferCard({ result }: TransferCardProps) {
-  // Extract data from result
-  const { from, to, amount, value, chainId, gasEstimate, gasPrice, toEnsName } = result.data;
+  // Handle both transaction and data formats
+  const transferData = result.transaction || result.data;
+
+  if (!transferData) {
+    console.error('[TransferCard] No transfer data available:', result);
+    return null; // CardWrapper will handle displaying error
+  }
+
+  // Extract data from transferData
+  const { from, to, amount, value, chainId, gasEstimate, gasPrice, toEnsName } = transferData;
   const [error, setError] = useState<string | null>(null);
 
   // Wagmi hook for sending transactions

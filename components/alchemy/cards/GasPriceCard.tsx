@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Flame, Clock, Zap, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -70,41 +70,52 @@ export function GasPriceCard({ result }: GasPriceCardProps) {
       label: 'Slow',
       icon: Clock,
       color: 'text-blue-500',
-      bgColor: 'from-blue-500/10 to-blue-500/5',
-      borderColor: 'border-blue-500/20',
+      bgColor: 'from-blue-500/20 to-blue-500/10',
+      borderColor: 'border-blue-500/30',
       ...prices.slow,
     },
     {
       label: 'Standard',
       icon: Flame,
       color: 'text-orange-500',
-      bgColor: 'from-orange-500/10 to-orange-500/5',
-      borderColor: 'border-orange-500/20',
+      bgColor: 'from-orange-500/20 to-orange-500/10',
+      borderColor: 'border-orange-500/30',
       ...prices.standard,
     },
     {
       label: 'Fast',
       icon: Zap,
-      color: 'text-green-500',
-      bgColor: 'from-green-500/10 to-green-500/5',
-      borderColor: 'border-green-500/20',
+      color: 'text-vet-success',
+      bgColor: 'from-vet-success/20 to-vet-success/10',
+      borderColor: 'border-vet-success/30',
       ...prices.fast,
     },
   ];
 
   return (
-    <Card className="border-primary/20 bg-card/50 backdrop-blur">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">Gas Prices</CardTitle>
-            <CardDescription>Current network gas prices</CardDescription>
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      className="vet-glass-card"
+    >
+      {/* Header */}
+      <div className="px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-vet-accent">
+              <Flame className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-vet-text-primary">Gas Prices</h3>
           </div>
-          <Badge variant="outline">{getChainName(chainId)}</Badge>
+          <Badge variant="outline" className="border-vet-accent/30 text-vet-accent">
+            {getChainName(chainId)}
+          </Badge>
         </div>
-      </CardHeader>
+        <p className="text-sm text-vet-text-secondary mt-1">Current network gas prices</p>
+      </div>
 
-      <CardContent className="space-y-4">
+      {/* Content */}
+      <div className="px-6 pb-6 space-y-4">
         {/* Gas Price Options */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {gasPrices.map((option) => {
@@ -116,28 +127,28 @@ export function GasPriceCard({ result }: GasPriceCardProps) {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Icon className={`h-5 w-5 ${option.color}`} />
-                  <span className="font-medium">{option.label}</span>
+                  <span className="font-medium text-vet-text-primary">{option.label}</span>
                 </div>
 
                 {/* Price */}
                 <div className="mb-2">
-                  <div className="text-3xl font-bold text-primary">
+                  <div className="text-3xl font-bold text-vet-text-primary">
                     {formatGwei(option.gwei)}
                   </div>
-                  <div className="text-xs text-muted-foreground">Gwei</div>
+                  <div className="text-xs text-vet-text-secondary">Gwei</div>
                 </div>
 
                 {/* Description */}
-                <div className="text-xs text-muted-foreground mb-2">
+                <div className="text-xs text-vet-text-secondary mb-2">
                   {option.description}
                 </div>
 
                 {/* Estimated Cost */}
-                <div className="pt-2 border-t border-muted/20">
-                  <div className="text-xs text-muted-foreground">
+                <div className="pt-2 border-t border-vet-border/50">
+                  <div className="text-xs text-vet-text-secondary">
                     Est. cost (21k gas)
                   </div>
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-medium text-vet-text-primary">
                     ~{estimateCost(option.gwei)} ETH
                   </div>
                 </div>
@@ -147,29 +158,29 @@ export function GasPriceCard({ result }: GasPriceCardProps) {
         </div>
 
         {/* Recommendation */}
-        <Alert className="border-primary/20 bg-primary/5">
-          <Info className="h-4 w-4" />
-          <AlertDescription>{recommendation}</AlertDescription>
+        <Alert className="border-vet-accent/20 bg-vet-accent/10">
+          <Info className="h-4 w-4 text-vet-accent" />
+          <AlertDescription className="text-vet-text-secondary">{recommendation}</AlertDescription>
         </Alert>
 
         {/* Additional Context */}
-        <div className="space-y-2 pt-2 border-t">
+        <div className="space-y-2 pt-2 border-t border-vet-border">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Network</span>
-            <span className="text-sm font-medium">{getChainName(chainId)}</span>
+            <span className="text-xs text-vet-text-secondary">Network</span>
+            <span className="text-sm font-medium text-vet-text-primary">{getChainName(chainId)}</span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Gas Price Unit</span>
-            <span className="text-sm font-mono">Gwei (10⁻⁹ ETH)</span>
+            <span className="text-xs text-vet-text-secondary">Gas Price Unit</span>
+            <span className="text-sm font-mono text-vet-text-primary">Gwei (10⁻⁹ ETH)</span>
           </div>
 
           {/* Comparison Bar */}
           <div className="pt-2">
-            <div className="text-xs text-muted-foreground mb-2">Price Comparison</div>
-            <div className="relative h-8 bg-muted rounded-lg overflow-hidden flex">
+            <div className="text-xs text-vet-text-secondary mb-2">Price Comparison</div>
+            <div className="relative h-8 bg-vet-surface/50 rounded-lg overflow-hidden flex">
               <div
-                className="bg-blue-500/30 flex items-center justify-center text-xs font-medium"
+                className="bg-blue-500/30 flex items-center justify-center text-xs font-medium text-vet-text-primary"
                 style={{
                   width: `${
                     (parseFloat(prices.slow.gwei) /
@@ -183,7 +194,7 @@ export function GasPriceCard({ result }: GasPriceCardProps) {
                 Slow
               </div>
               <div
-                className="bg-orange-500/30 flex items-center justify-center text-xs font-medium"
+                className="bg-orange-500/30 flex items-center justify-center text-xs font-medium text-vet-text-primary"
                 style={{
                   width: `${
                     (parseFloat(prices.standard.gwei) /
@@ -197,7 +208,7 @@ export function GasPriceCard({ result }: GasPriceCardProps) {
                 Standard
               </div>
               <div
-                className="bg-green-500/30 flex items-center justify-center text-xs font-medium"
+                className="bg-vet-success/30 flex items-center justify-center text-xs font-medium text-vet-text-primary"
                 style={{
                   width: `${
                     (parseFloat(prices.fast.gwei) /
@@ -213,7 +224,7 @@ export function GasPriceCard({ result }: GasPriceCardProps) {
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }

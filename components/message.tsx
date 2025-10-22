@@ -68,11 +68,12 @@ const PurePreviewMessage = ({
         className="w-full mx-auto max-w-3xl px-4 group/message"
         initial={{ y: 5, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         data-role={message.role}
       >
         <div
           className={cn(
-            "flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl",
+            "flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-[80%]",
             {
               "w-full": mode === "edit",
               "group-data-[role=user]/message:w-fit": mode !== "edit",
@@ -80,16 +81,16 @@ const PurePreviewMessage = ({
           )}
         >
           {message.role === "assistant" && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
+            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
               <div className="translate-y-px">
-                <SparklesIcon size={14} color="#fc8d36" />
+                <SparklesIcon size={14} color="#E2008C" />
               </div>
             </div>
           )}
           {message.role === "system" && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
+            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
               <div className="translate-y-px">
-                <InfoIcon size={20} color="white" />
+                <InfoIcon size={20} color="#E2008C" />
               </div>
             </div>
           )}
@@ -125,6 +126,15 @@ const PurePreviewMessage = ({
               const { type } = part;
               const key = `message-${message.id}-part-${index}`;
 
+              // Debug: Log tool parts to identify duplicates
+              if (type.startsWith("tool-")) {
+                console.log(`[Message ${message.id}] Part ${index}:`, {
+                  type,
+                  toolCallId: part.toolCallId,
+                  state: part.state,
+                });
+              }
+
               if (type === "reasoning" && part.text?.trim().length > 0) {
                 return (
                   <MessageReasoning
@@ -138,14 +148,20 @@ const PurePreviewMessage = ({
               if (type === "text") {
                 if (mode === "view") {
                   return (
-                    <div key={key} className="flex flex-row gap-2 items-start ">
+                    <motion.div
+                      key={key}
+                      className="flex flex-row gap-2 items-start"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                    >
                       {message.role === "user" && !isReadonly && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
                               data-testid="message-edit-button"
                               variant="ghost"
-                              className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
+                              className="px-2 h-fit rounded-full text-vet-text-secondary opacity-0 group-hover/message:opacity-100 hover:bg-vet-surface/50 transition-all duration-200"
                               onClick={() => {
                                 setMode("edit");
                               }}
@@ -160,8 +176,10 @@ const PurePreviewMessage = ({
                       <div
                         data-testid="message-content"
                         className={cn("flex flex-col gap-4", {
-                          "bg-primary text-primary-foreground px-3 py-2 rounded-xl":
+                          "vet-chat-user max-w-[80%] ml-auto bg-vet-accent text-white rounded-2xl p-4":
                             message.role === "user",
+                          "vet-chat-ai max-w-[80%] bg-vet-surface border border-vet-border rounded-2xl p-4":
+                            message.role === "assistant",
                         })}
                       >
                         <SuggestionAwareMarkdown
@@ -169,7 +187,7 @@ const PurePreviewMessage = ({
                           sendMessage={sendMessage}
                         />
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 }
 
@@ -199,76 +217,107 @@ const PurePreviewMessage = ({
                 // Use index in key to prevent duplicate key errors
                 const uniqueKey = `${toolCallId}-${index}`;
 
-                if (state === "input-available") {
+                // Only show loading state during active streaming, not for saved messages
+                if (state === "input-available" && isLoading) {
                   return (
-                    <div key={uniqueKey}>
+                    <motion.div
+                      key={uniqueKey}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                    >
                       <ToolCallLoader loadingMessage={`Running ${toolName}...`} />
-                    </div>
+                    </motion.div>
                   );
                 }
 
+                // Only render the final output, skip input-available states in saved messages
                 if (state === "output-available") {
                   const { output } = part;
 
                   // Validate output structure
                   if (!output) {
                     return (
-                      <div key={uniqueKey} className="mt-4 p-4 bg-red-500/10 rounded-lg border border-red-500">
+                      <motion.div
+                        key={uniqueKey}
+                        className="vet-tool-card mt-4 p-4 bg-red-500/10 rounded-xl border border-red-500"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                      >
                         <h3 className="font-semibold mb-2 text-sm text-red-500">
                           Error: No output data for {toolName}
                         </h3>
-                      </div>
+                      </motion.div>
                     );
                   }
+
+                  // Wrap all tool cards with motion and vet-tool-card styling
+                  const CardWrapper = ({ children }: { children: React.ReactNode }) => (
+                    <motion.div
+                      className="vet-tool-card"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                    >
+                      {children}
+                    </motion.div>
+                  );
 
                   // Map tool names to their respective card components
                   switch (toolType) {
                     case "get_balance":
-                      return <BalanceCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><BalanceCard result={output} /></CardWrapper>;
 
                     case "get_token_balance":
-                      return <TokenBalancesCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><TokenBalancesCard result={output} /></CardWrapper>;
 
                     case "get_token_metadata":
-                      return <TokenMetadataCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><TokenMetadataCard result={output} /></CardWrapper>;
 
                     case "get_token_price":
                     case "get_token_price_by_address":
-                      return <TokenPriceCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><TokenPriceCard result={output} /></CardWrapper>;
 
                     case "get_gas_price":
-                      return <GasPriceCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><GasPriceCard result={output} /></CardWrapper>;
 
                     case "get_nfts_owned":
                     case "get_collections_for_owner":
-                      return <NftsOwnedCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><NftsOwnedCard result={output} /></CardWrapper>;
 
                     case "get_transaction_history":
-                      return <TransactionHistoryCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><TransactionHistoryCard result={output} /></CardWrapper>;
 
                     case "prepare_eth_transfer":
-                      return <TransferCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><TransferCard result={output} /></CardWrapper>;
 
                     case "prepare_token_transfer":
-                      return <TokenTransferCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><TokenTransferCard result={output} /></CardWrapper>;
 
                     case "prepare_token_approval":
-                      return <TokenApprovalCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><TokenApprovalCard result={output} /></CardWrapper>;
 
                     case "prepare_contract_call":
-                      return <ContractCallCard key={uniqueKey} result={output} />;
+                      return <CardWrapper key={uniqueKey}><ContractCallCard result={output} /></CardWrapper>;
 
                     default:
                       // Fallback to generic display for unmapped tools
                       return (
-                        <div key={uniqueKey} className="mt-4 p-4 bg-muted/50 rounded-lg border">
-                          <h3 className="font-semibold mb-2 text-sm text-muted-foreground capitalize">
+                        <motion.div
+                          key={uniqueKey}
+                          className="vet-tool-card mt-4 p-4 bg-vet-surface/70 backdrop-blur-sm border border-vet-border rounded-xl"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                        >
+                          <h3 className="font-semibold mb-2 text-sm text-vet-text-secondary capitalize">
                             {toolName} Result
                           </h3>
-                          <pre className="text-xs overflow-auto max-h-96">
+                          <pre className="text-xs overflow-auto max-h-96 text-vet-text">
                             {JSON.stringify(output, null, 2)}
                           </pre>
-                        </div>
+                        </motion.div>
                       );
                   }
                 }
@@ -323,21 +372,31 @@ export const ThinkingMessage = () => {
       animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
       data-role={role}
     >
-      <div
-        className={cx(
-          "flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
-          {
-            "group-data-[role=user]/message:bg-muted": true,
-          }
-        )}
-      >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
-          <SparklesIcon size={14} />
+      <div className="flex gap-4 w-full">
+        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
+          <SparklesIcon size={14} color="#E2008C" />
         </div>
 
         <div className="flex flex-col gap-2 w-full">
-          <div className="flex flex-col gap-4 text-muted-foreground">
-            Thinking...
+          <div className="flex items-center gap-2 vet-chat-ai max-w-[80%] bg-vet-surface border border-vet-border rounded-2xl p-4">
+            <span className="text-vet-text-secondary">Thinking</span>
+            <div className="vet-loading-dots flex items-center gap-1">
+              <motion.div
+                className="vet-loading-dot w-1.5 h-1.5 rounded-full bg-white/80"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+              />
+              <motion.div
+                className="vet-loading-dot w-1.5 h-1.5 rounded-full bg-white/80"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
+              />
+              <motion.div
+                className="vet-loading-dot w-1.5 h-1.5 rounded-full bg-white/80"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+              />
+            </div>
           </div>
         </div>
       </div>

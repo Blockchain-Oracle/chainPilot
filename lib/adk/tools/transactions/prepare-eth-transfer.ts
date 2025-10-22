@@ -34,6 +34,15 @@ export const prepareEthTransferTool = createTool({
     toEnsName: z.string().optional().describe('ENS name of recipient (if available)'),
   }),
   fn: async ({ from, to, amount, chainId, toEnsName }, context: any) => {
+    // Track transaction preparation in state
+    const txHistory = context.state.get('prepared_transactions', []);
+
+    // Remember the last prepared transaction details for context
+    context.state.set('last_tx_type', 'eth_transfer');
+    context.state.set('last_tx_recipient', to);
+    context.state.set('last_tx_amount', amount);
+    context.state.set('last_tx_chain', chainId);
+
     // Validate sender address
     if (!isAddress(from)) {
       return {
@@ -79,19 +88,16 @@ export const prepareEthTransferTool = createTool({
       };
     }
 
-    // Get Alchemy service for gas estimation
+    // Get gas price using Alchemy service
     const alchemy = getAlchemyService();
 
-    // Estimate gas (simple transfer is typically 21,000)
     let gasEstimate = '21000'; // Default for simple transfers
     let gasPrice: string | undefined;
 
     try {
-      // Get current gas price
-      const feeData = await alchemy.core.getFeeData();
-      if (feeData.gasPrice) {
-        gasPrice = feeData.gasPrice.toString();
-      }
+      // Get current gas price from service
+      const gasPriceData = await alchemy.getGasPrice(chainId);
+      gasPrice = gasPriceData.standard; // Use standard gas price in Gwei
 
       // For simple ETH transfers, gas is fixed at 21,000
       // No need to estimate
@@ -100,20 +106,28 @@ export const prepareEthTransferTool = createTool({
       // Continue with defaults
     }
 
+    const transactionData = {
+      type: 'eth_transfer',
+      from,
+      to,
+      amount,
+      value: valueInWei,
+      chainId,
+      gasEstimate,
+      gasPrice,
+      toEnsName,
+      preparedAt: new Date().toISOString(),
+    };
+
+    // Store prepared transaction in state
+    txHistory.push(transactionData);
+    context.state.set('prepared_transactions', txHistory);
+    context.state.set('last_prepared_tx', transactionData);
+
     // Return transaction data
     return {
       success: true,
-      transaction: {
-        type: 'eth_transfer',
-        from,
-        to,
-        amount,
-        value: valueInWei,
-        chainId,
-        gasEstimate,
-        gasPrice,
-        toEnsName,
-      },
+      transaction: transactionData,
     };
   }
 });

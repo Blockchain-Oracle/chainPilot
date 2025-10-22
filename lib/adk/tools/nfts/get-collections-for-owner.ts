@@ -24,6 +24,20 @@ export const getCollectionsForOwnerTool = createTool({
     limit: z.number().optional().default(100).describe('Number of collections to return (max 100)'),
   }),
   fn: async ({ owner, chainId = 1, limit = 100 }, context) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'get_collections_for_owner',
+      params: { owner, chainId, limit },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'get_collections_for_owner');
+    context.state.set('last_owner', owner);
+    context.state.set('last_chain_id', chainId);
+
     try {
       // Validate address format
       if (!owner.match(/^0x[a-fA-F0-9]{40}$/)) {
@@ -80,7 +94,7 @@ export const getCollectionsForOwnerTool = createTool({
         image: collection.image,
       }));
 
-      return {
+      const result = {
         success: true,
         data: {
           owner,
@@ -90,6 +104,12 @@ export const getCollectionsForOwnerTool = createTool({
           hasMore: !!data.pageKey,
         },
       };
+
+      // Store result in state before returning
+      context.state.set('last_result', result.data);
+      context.state.set('last_collections', collections);
+
+      return result;
     } catch (error: any) {
       return {
         success: false,

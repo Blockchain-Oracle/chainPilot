@@ -11,6 +11,20 @@ export const balanceTool = createTool({
   }),
   fn: async ({ address, chainId = 1 }, context) => {
     try {
+      // Track query in conversation state
+      const queryHistory = context.state.get('query_history', []);
+      queryHistory.push({
+        tool: 'get_balance',
+        address,
+        chainId,
+        timestamp: new Date().toISOString(),
+      });
+      context.state.set('query_history', queryHistory);
+
+      // Remember the last queried chain for context
+      context.state.set('last_chain_id', chainId);
+      context.state.set('last_address', address);
+
       const alchemy = getAlchemyService();
 
       // Validate address format
@@ -23,7 +37,7 @@ export const balanceTool = createTool({
 
       const balance = await alchemy.getNativeBalance(address, chainId);
 
-      return {
+      const result = {
         success: true,
         data: {
           address,
@@ -34,6 +48,11 @@ export const balanceTool = createTool({
           formatted: `${balance.balance} ${balance.symbol}`,
         },
       };
+
+      // Cache the result in state for quick reference
+      context.state.set('last_balance_result', result.data);
+
+      return result;
     } catch (error: any) {
       return {
         success: false,

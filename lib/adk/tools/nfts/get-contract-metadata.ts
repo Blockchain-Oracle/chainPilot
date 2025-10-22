@@ -23,6 +23,20 @@ export const getContractMetadataTool = createTool({
     chainId: z.number().optional().default(1).describe('The chain ID (1=Ethereum, 8453=Base, etc.)'),
   }),
   fn: async ({ contractAddress, chainId = 1 }, context) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'get_contract_metadata',
+      params: { contractAddress, chainId },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'get_contract_metadata');
+    context.state.set('last_contract_address', contractAddress);
+    context.state.set('last_chain_id', chainId);
+
     try {
       // Validate address format
       if (!contractAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
@@ -69,7 +83,7 @@ export const getContractMetadataTool = createTool({
 
       const contract = await response.json();
 
-      return {
+      const result = {
         success: true,
         data: {
           address: contract.address,
@@ -92,6 +106,12 @@ export const getContractMetadataTool = createTool({
           } : undefined,
         },
       };
+
+      // Store result in state before returning
+      context.state.set('last_result', result.data);
+      context.state.set('last_contract_metadata', result.data);
+
+      return result;
     } catch (error: any) {
       return {
         success: false,

@@ -186,18 +186,18 @@ export function SidebarHistory({
   if (status === "loading") {
     return (
       <SidebarGroup>
-        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+        <div className="px-2 py-1 text-xs text-vet-text-muted">
           Today
         </div>
         <SidebarGroupContent>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             {[44, 32, 28, 64, 52].map((item) => (
               <div
                 key={item}
-                className="rounded-md h-8 flex gap-2 px-2 items-center"
+                className="rounded-xl h-8 flex gap-2 px-2 items-center"
               >
                 <div
-                  className="h-4 rounded-md flex-1 max-w-[--skeleton-width] bg-sidebar-accent-foreground/10"
+                  className="h-4 rounded-lg flex-1 max-w-[--skeleton-width] bg-vet-surface animate-vet-pulse"
                   style={
                     {
                       "--skeleton-width": `${item}%`,
@@ -216,7 +216,7 @@ export function SidebarHistory({
     return (
       <SidebarGroup>
         <SidebarGroupContent>
-          <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
+          <div className="px-2 text-vet-text-secondary w-full flex flex-row justify-center items-center text-sm gap-2">
             Connect your wallet to save and revisit previous chats!
           </div>
         </SidebarGroupContent>
@@ -227,18 +227,18 @@ export function SidebarHistory({
   if (isLoading) {
     return (
       <SidebarGroup>
-        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+        <div className="px-2 py-1 text-xs text-vet-text-muted">
           Today
         </div>
         <SidebarGroupContent>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             {[44, 32, 28, 64, 52].map((item) => (
               <div
                 key={item}
-                className="rounded-md h-8 flex gap-2 px-2 items-center"
+                className="rounded-xl h-8 flex gap-2 px-2 items-center"
               >
                 <div
-                  className="h-4 rounded-md flex-1 max-w-[--skeleton-width] bg-sidebar-accent-foreground/10"
+                  className="h-4 rounded-lg flex-1 max-w-[--skeleton-width] bg-vet-surface animate-vet-pulse"
                   style={
                     {
                       "--skeleton-width": `${item}%`,
@@ -257,7 +257,7 @@ export function SidebarHistory({
     return (
       <SidebarGroup>
         <SidebarGroupContent>
-          <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
+          <div className="px-2 text-vet-text-secondary w-full flex flex-row justify-center items-center text-sm gap-2">
             Your conversations will appear here once you start chatting!
           </div>
         </SidebarGroupContent>
@@ -282,7 +282,7 @@ export function SidebarHistory({
                   <div className="flex flex-col gap-6">
                     {groupedChats.today.length > 0 && (
                       <div key="today">
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+                        <div className="px-2 py-1 text-xs text-vet-text-muted font-medium">
                           Today
                         </div>
                         {groupedChats.today.map((chat) => (
@@ -302,7 +302,7 @@ export function SidebarHistory({
 
                     {groupedChats.yesterday.length > 0 && (
                       <div key="yesterday">
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+                        <div className="px-2 py-1 text-xs text-vet-text-muted font-medium">
                           Yesterday
                         </div>
                         {groupedChats.yesterday.map((chat) => (
@@ -322,7 +322,7 @@ export function SidebarHistory({
 
                     {groupedChats.lastWeek.length > 0 && (
                       <div key="lastWeek">
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+                        <div className="px-2 py-1 text-xs text-vet-text-muted font-medium">
                           Last 7 days
                         </div>
                         {groupedChats.lastWeek.map((chat) => (
@@ -342,7 +342,7 @@ export function SidebarHistory({
 
                     {groupedChats.lastMonth.length > 0 && (
                       <div key="lastMonth">
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+                        <div className="px-2 py-1 text-xs text-vet-text-muted font-medium">
                           Last 30 days
                         </div>
                         {groupedChats.lastMonth.map((chat) => (
@@ -362,7 +362,7 @@ export function SidebarHistory({
 
                     {groupedChats.older.length > 0 && (
                       <div key="older">
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+                        <div className="px-2 py-1 text-xs text-vet-text-muted font-medium">
                           Older than last month
                         </div>
                         {groupedChats.older.map((chat) => (
@@ -393,11 +393,11 @@ export function SidebarHistory({
           />
 
           {hasReachedEnd ? (
-            <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2 mt-8">
+            <div className="px-2 text-vet-text-secondary w-full flex flex-row justify-center items-center text-sm gap-2 mt-8">
               You have reached the end of your chat history.
             </div>
           ) : (
-            <div className="p-2 text-zinc-500 dark:text-zinc-400 flex flex-row gap-2 items-center mt-8">
+            <div className="p-2 text-vet-text-secondary flex flex-row gap-2 items-center mt-8">
               <div className="animate-spin">
                 <LoaderIcon />
               </div>

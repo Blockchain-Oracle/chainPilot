@@ -9,6 +9,19 @@ export const ensResolverTool = createTool({
     input: z.string().describe('ENS name (vitalik.eth) or address (0x...) to resolve'),
   }),
   fn: async ({ input }, context) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'resolve_ens',
+      params: { input },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'resolve_ens');
+    context.state.set('last_ens_input', input);
+
     try {
       const alchemy = getAlchemyService();
       let result;
@@ -39,10 +52,16 @@ export const ensResolverTool = createTool({
         };
       }
 
-      return {
+      const response = {
         success: true,
         data: result,
       };
+
+      // Store result in state before returning
+      context.state.set('last_result', result);
+      context.state.set('last_ens_resolution', result);
+
+      return response;
     } catch (error: any) {
       return {
         success: false,

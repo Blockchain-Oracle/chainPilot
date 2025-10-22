@@ -20,7 +20,7 @@ function PureChatHeader() {
 
   const { width: windowWidth } = useWindowSize();
   return (
-    <header className="flex sticky top-0 bg-background py-1.5 items-center justify-between px-2 md:px-2 gap-2 z-10">
+    <header className="flex sticky top-0 bg-vet-surface/80 backdrop-blur-md border-b border-vet-border py-1.5 items-center justify-between px-2 md:px-2 gap-2 z-10">
       <div className="flex items-center gap-2">
         <SidebarToggle />
 
@@ -29,7 +29,7 @@ function PureChatHeader() {
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
+                className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0 text-vet-text-primary"
                 onClick={() => {
                   router.push("/");
                   router.refresh();

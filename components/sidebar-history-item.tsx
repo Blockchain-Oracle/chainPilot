@@ -44,16 +44,26 @@ const PureChatItem = ({
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive}>
+      <SidebarMenuButton asChild isActive={isActive} className={`
+        transition-all duration-200
+        ${isActive
+          ? 'bg-vet-accent/10 text-vet-accent border-l-2 border-vet-accent hover:bg-vet-accent/15'
+          : 'text-vet-text-secondary hover:bg-vet-hover hover:text-vet-text-primary'
+        }
+      `}>
         <Link href={`/chat/${chat.id}`} onClick={() => setOpenMobile(false)}>
-          <span>{chat.title}</span>
+          <span className="truncate">{chat.title}</span>
         </Link>
       </SidebarMenuButton>
 
       <DropdownMenu modal={true}>
         <DropdownMenuTrigger asChild>
           <SidebarMenuAction
-            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mr-0.5"
+            className={`
+              transition-all duration-200 mr-0.5
+              data-[state=open]:bg-vet-hover data-[state=open]:text-vet-accent
+              ${isActive ? 'text-vet-accent' : 'text-vet-text-muted hover:text-vet-text-secondary'}
+            `}
             showOnHover={!isActive}
           >
             <MoreHorizontalIcon />
@@ -61,16 +71,16 @@ const PureChatItem = ({
           </SidebarMenuAction>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent side="bottom" align="end">
+        <DropdownMenuContent side="bottom" align="end" className="bg-vet-surface border-vet-border">
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="cursor-pointer">
+            <DropdownMenuSubTrigger className="cursor-pointer text-vet-text-secondary hover:bg-vet-hover hover:text-vet-text-primary transition-colors">
               <ShareIcon />
               <span>Share</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubContent className="bg-vet-surface border-vet-border">
                 <DropdownMenuItem
-                  className="cursor-pointer flex-row justify-between"
+                  className="cursor-pointer flex-row justify-between text-vet-text-secondary hover:bg-vet-hover hover:text-vet-text-primary transition-colors"
                   onClick={() => {
                     setVisibilityType('private');
                   }}
@@ -80,11 +90,13 @@ const PureChatItem = ({
                     <span>Private</span>
                   </div>
                   {visibilityType === 'private' ? (
-                    <CheckCircleFillIcon />
+                    <div className="text-vet-accent">
+                      <CheckCircleFillIcon />
+                    </div>
                   ) : null}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="cursor-pointer flex-row justify-between"
+                  className="cursor-pointer flex-row justify-between text-vet-text-secondary hover:bg-vet-hover hover:text-vet-text-primary transition-colors"
                   onClick={() => {
                     setVisibilityType('public');
                   }}
@@ -93,14 +105,18 @@ const PureChatItem = ({
                     <GlobeIcon />
                     <span>Public</span>
                   </div>
-                  {visibilityType === 'public' ? <CheckCircleFillIcon /> : null}
+                  {visibilityType === 'public' ? (
+                    <div className="text-vet-accent">
+                      <CheckCircleFillIcon />
+                    </div>
+                  ) : null}
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
 
           <DropdownMenuItem
-            className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
+            className="cursor-pointer text-vet-error hover:bg-vet-error/15 focus:bg-vet-error/15 focus:text-vet-error transition-colors"
             onSelect={() => onDelete(chat.id)}
           >
             <TrashIcon />

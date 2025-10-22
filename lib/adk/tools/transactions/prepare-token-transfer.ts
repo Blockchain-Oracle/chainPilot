@@ -34,6 +34,22 @@ export const prepareTokenTransferTool = createTool({
     toEnsName: z.string().optional().describe('ENS name of recipient'),
   }),
   fn: async ({ from, tokenAddress, to, amount, chainId, toEnsName }, context: any) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'prepare_token_transfer',
+      params: { from, tokenAddress, to, amount, chainId, toEnsName },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'prepare_token_transfer');
+    context.state.set('last_from', from);
+    context.state.set('last_token_address', tokenAddress);
+    context.state.set('last_to', to);
+    context.state.set('last_chain_id', chainId);
+
     // Validate addresses
     if (!isAddress(from)) {
       return { success: false, error: `Invalid sender address: ${from}` };
@@ -119,7 +135,7 @@ export const prepareTokenTransferTool = createTool({
     }
 
     // Return transaction data
-    return {
+    const result = {
       success: true,
       transaction: {
         type: 'token_transfer',
@@ -137,5 +153,11 @@ export const prepareTokenTransferTool = createTool({
         toEnsName,
       },
     };
+
+    // Store result in state before returning
+    context.state.set('last_result', result.transaction);
+    context.state.set('last_prepared_transaction', result.transaction);
+
+    return result;
   }
 });

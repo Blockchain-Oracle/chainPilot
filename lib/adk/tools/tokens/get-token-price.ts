@@ -10,11 +10,25 @@ export const tokenPriceTool = createTool({
     chainId: z.number().optional().default(1).describe('The chain ID for context'),
   }),
   fn: async ({ symbol, chainId = 1 }, context) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'get_token_price',
+      params: { symbol, chainId },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'get_token_price');
+    context.state.set('last_token_symbol', symbol);
+    context.state.set('last_chain_id', chainId);
+
     try {
       const alchemy = getAlchemyService();
       const priceData = await alchemy.getTokenPrice(symbol, chainId);
 
-      return {
+      const result = {
         success: true,
         data: {
           symbol: symbol.toUpperCase(),
@@ -27,6 +41,12 @@ export const tokenPriceTool = createTool({
           priceChange: priceData.change24h > 0 ? 'up' : priceData.change24h < 0 ? 'down' : 'stable',
         },
       };
+
+      // Store result in state before returning
+      context.state.set('last_result', result.data);
+      context.state.set('last_token_price', result.data);
+
+      return result;
     } catch (error: any) {
       return {
         success: false,

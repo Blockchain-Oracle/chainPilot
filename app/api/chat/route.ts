@@ -130,7 +130,15 @@ export async function POST(request: NextRequest) {
     const tools = await getAlchemyTools();
 
     // Build agent with ADK's database session service
-    // ADK will automatically manage conversation history including tool calls/responses
+    // Check if session exists first to avoid duplicate key errors
+    let existingSession;
+    try {
+      existingSession = await adkSessionService.getSession("chainpilot", user.id, id);
+    } catch (error) {
+      // Session doesn't exist yet, will be created
+      existingSession = null;
+    }
+
     const builder = AgentBuilder.create("chainpilot")
       .withModel(modelConfig.model)
       .withDescription("Multi-chain blockchain assistant powered by Alchemy")
@@ -165,14 +173,22 @@ When users request blockchain operations:
 2. Validate all parameters
 3. Show clear results with explorer links
 4. Wait for confirmation on transactions`)
-      .withTools(...tools)
-      .withSessionService(adkSessionService, {
+      .withTools(...tools);
+
+    // Add session service - only provide sessionId if session doesn't exist yet
+    if (existingSession) {
+      // Session exists, just attach the session service without sessionId
+      builder.withSessionService(adkSessionService);
+    } else {
+      // New session, let ADK create it with our custom ID
+      builder.withSessionService(adkSessionService, {
         userId: user.id,
         appName: "chainpilot",
         sessionId: id, // Use chat ID as session ID for consistency
       });
+    }
 
-    // Build agent - ADK creates or retrieves existing session automatically
+    // Build agent - ADK will use existing session or create new one
     const { runner, session } = await builder.build();
 
     // Create SSE stream from ADK events

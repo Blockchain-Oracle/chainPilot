@@ -1,7 +1,7 @@
 "use client";
 
 import { SparklesIcon } from "./icons";
-import { SendHorizonal, User } from "lucide-react";
+import { SendHorizonal, User, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { useEffect, useRef, useState, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,8 @@ import { askChainPilot, getChatHistory } from "@/app/_actions/chat";
 import { useAccount } from "wagmi";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSidebar } from "@/components/ui/sidebar";
+import { Markdown } from "@/components/markdown";
 
 // Import Alchemy card components for generative UI
 import { BalanceCard } from "@/components/alchemy/cards/BalanceCard";
@@ -48,6 +50,7 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const chatRef = useRef<HTMLDivElement>(null);
   const { address, isConnected } = useAccount();
+  const { toggleSidebar, open: sidebarOpen } = useSidebar();
 
   // Load chat history on mount
   useEffect(() => {
@@ -345,11 +348,41 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] max-w-4xl mx-auto w-full">
+    <div className="flex flex-col h-screen max-w-4xl mx-auto w-full">
+      {/* Header with Sidebar Toggle */}
+      <div className="sticky top-0 z-10 border-b border-vet-border/30 bg-vet-bg/95 backdrop-blur-xl px-6 py-4 shadow-lg">
+        <div className="flex items-center justify-between">
+          {/* Sidebar Toggle Button */}
+          <Button
+            variant="ghost"
+            onClick={toggleSidebar}
+            className="h-9 px-3 gap-2 text-sm font-medium text-vet-text-primary hover:text-vet-accent hover:bg-vet-surface/50 transition-colors duration-200"
+          >
+            {sidebarOpen ? (
+              <>
+                <PanelLeftClose className="w-4 h-4" />
+                <span>Hide</span>
+              </>
+            ) : (
+              <>
+                <PanelLeftOpen className="w-4 h-4" />
+                <span>Show</span>
+              </>
+            )}
+          </Button>
+
+          {/* Status Badge */}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-vet-surface/50 border border-vet-border/30">
+            <div className="w-2 h-2 rounded-full bg-vet-accent animate-pulse" />
+            <span className="text-sm text-vet-text-primary font-medium">ChainPilot Active</span>
+          </div>
+        </div>
+      </div>
+
       {/* Chat Messages */}
       <div
         ref={chatRef}
-        className="flex-1 overflow-y-auto px-4 py-6 space-y-4"
+        className="flex-1 overflow-y-auto px-4 py-6 space-y-4 pb-2"
       >
         {messages.length === 0 && !isLoadingHistory && (
           <div className="flex flex-col items-center justify-center h-full text-center">
@@ -414,12 +447,14 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
               }`}
             >
               {msg.role === "user" ? (
-                <p className="whitespace-pre-wrap text-sm">{msg.content as string}</p>
+                <div className="text-sm">
+                  <Markdown>{msg.content as string}</Markdown>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {typeof msg.content === "string" ? (
-                    <div className="bg-vet-surface border border-vet-border rounded-2xl px-4 py-3 text-sm text-vet-text-primary">
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    <div className="bg-vet-surface border border-vet-border rounded-2xl px-4 py-3 text-sm text-vet-text-primary prose prose-invert prose-sm max-w-none">
+                      <Markdown>{msg.content}</Markdown>
                     </div>
                   ) : (
                     <>
@@ -428,9 +463,9 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
                           return (
                             <div
                               key={idx}
-                              className="bg-vet-surface border border-vet-border rounded-2xl px-4 py-3 text-sm text-vet-text-primary"
+                              className="bg-vet-surface border border-vet-border rounded-2xl px-4 py-3 text-sm text-vet-text-primary prose prose-invert prose-sm max-w-none"
                             >
-                              <p className="whitespace-pre-wrap">{part.text}</p>
+                              <Markdown>{part.text}</Markdown>
                             </div>
                           );
                         }
@@ -476,7 +511,7 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
       </div>
 
       {/* Input Form */}
-      <div className="border-t border-vet-border bg-vet-bg/50 backdrop-blur-xl p-4">
+      <div className="border-t border-vet-border bg-vet-bg/95 backdrop-blur-xl px-4 py-6 pb-8">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-3">
           <Textarea
             value={input}

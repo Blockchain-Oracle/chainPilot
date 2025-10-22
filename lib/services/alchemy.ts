@@ -348,37 +348,87 @@ export class AlchemyService {
   }
 
   // Estimate gas for a transaction
-  async estimateGas(
-    from: string,
-    to: string,
-    value: string,
-    data?: string,
-    chainId: number = 1
-  ): Promise<{
+  async estimateGas(params: {
+    from: string;
+    to: string;
+    value?: string;
+    data?: string;
+    chainId?: number;
+  }): Promise<{
     gasLimit: string;
     gasPrice: string;
     estimatedCost: string;
   }> {
-    const alchemy = this.getAlchemy(chainId);
+    const { from, to, value, data, chainId = 1 } = params;
 
-    const gasEstimate = await alchemy.core.estimateGas({
-      from,
-      to,
-      value: Utils.parseEther(value).toString(),
-      data,
-    });
+    try {
+      const rpcUrl = this.getRpcUrl(chainId);
 
-    const gasPrice = await alchemy.core.getGasPrice();
-    const estimatedCost = formatUnits(
-      BigInt(gasEstimate.toString()) * BigInt(gasPrice.toString()),
-      18
-    );
+      // Prepare eth_estimateGas params
+      const txParams: any = {
+        from: from.toLowerCase(),
+        to: to.toLowerCase(),
+      };
 
-    return {
-      gasLimit: gasEstimate.toString(),
-      gasPrice: formatUnits(BigInt(gasPrice.toString()), 9),
-      estimatedCost,
-    };
+      if (value) {
+        // Convert value to hex (assuming value is in wei as string)
+        txParams.value = '0x' + BigInt(value).toString(16);
+      }
+
+      if (data) {
+        txParams.data = data;
+      }
+
+      // Estimate gas
+      const gasResponse = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_estimateGas',
+          params: [txParams],
+          id: 1,
+        }),
+      });
+
+      const gasData = await gasResponse.json();
+      if (gasData.error) {
+        throw new Error(gasData.error.message || 'Gas estimation failed');
+      }
+
+      const gasLimit = BigInt(gasData.result);
+
+      // Get gas price
+      const priceResponse = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_gasPrice',
+          params: [],
+          id: 2,
+        }),
+      });
+
+      const priceData = await priceResponse.json();
+      if (priceData.error) {
+        throw new Error(priceData.error.message || 'Failed to get gas price');
+      }
+
+      const gasPriceWei = BigInt(priceData.result);
+      const gasPriceGwei = formatUnits(gasPriceWei, 9);
+      const estimatedCostWei = gasLimit * gasPriceWei;
+      const estimatedCost = formatUnits(estimatedCostWei, 18);
+
+      return {
+        gasLimit: gasLimit.toString(),
+        gasPrice: gasPriceGwei,
+        estimatedCost,
+      };
+    } catch (error: any) {
+      console.error(`Error estimating gas on chain ${chainId}:`, error);
+      throw new Error(`Failed to estimate gas: ${error.message}`);
+    }
   }
 
   // Get token price using Alchemy Prices API

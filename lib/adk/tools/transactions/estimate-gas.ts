@@ -13,6 +13,21 @@ export const estimateGasTool = createTool({
     chainId: z.number().optional().default(1).describe('The chain ID (1=Ethereum, 8453=Base, 137=Polygon, etc.)'),
   }),
   fn: async ({ from, to, value, data, chainId = 1 }, context: any) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'estimate_gas',
+      params: { from, to, value, data, chainId },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'estimate_gas');
+    context.state.set('last_from', from);
+    context.state.set('last_to', to);
+    context.state.set('last_chain_id', chainId);
+
     try {
       const alchemy = getAlchemyService();
 
@@ -43,7 +58,7 @@ export const estimateGasTool = createTool({
       const estimate = await alchemy.estimateGas(from, to, value, data, chainId);
       const chainName = CHAIN_NAMES[chainId] || 'Unknown Chain';
 
-      return {
+      const result = {
         success: true,
         data: {
           from,
@@ -57,6 +72,12 @@ export const estimateGasTool = createTool({
           summary: `Transaction will cost approximately ${estimate.estimatedCost} ${alchemy['getNativeTokenSymbol'](chainId)} in gas fees`,
         },
       };
+
+      // Store result in state before returning
+      context.state.set('last_result', result.data);
+      context.state.set('last_gas_estimate', estimate);
+
+      return result;
     } catch (error: any) {
       // Check for common errors
       if (error.message?.includes('insufficient funds')) {

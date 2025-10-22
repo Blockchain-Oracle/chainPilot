@@ -37,6 +37,21 @@ export const prepareContractCallTool = createTool({
     comment: z.string().optional().describe('Additional context about this call'),
   }),
   fn: async ({ from, contractAddress, functionName, data, value, chainId, contractName, comment }, context: any) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'prepare_contract_call',
+      params: { from, contractAddress, functionName, data, value, chainId, contractName, comment },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'prepare_contract_call');
+    context.state.set('last_from', from);
+    context.state.set('last_contract_address', contractAddress);
+    context.state.set('last_chain_id', chainId);
+
     // Validate addresses
     if (!isAddress(from)) {
       return { success: false, error: `Invalid sender address: ${from}` };
@@ -111,7 +126,7 @@ export const prepareContractCallTool = createTool({
     }
 
     // Return transaction data
-    return {
+    const result = {
       success: true,
       transaction: {
         type: 'contract_call',
@@ -127,5 +142,11 @@ export const prepareContractCallTool = createTool({
         comment,
       },
     };
+
+    // Store result in state before returning
+    context.state.set('last_result', result.transaction);
+    context.state.set('last_prepared_transaction', result.transaction);
+
+    return result;
   }
 });

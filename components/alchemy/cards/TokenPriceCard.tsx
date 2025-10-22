@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, DollarSign } from 'lucide-react';
 
@@ -35,15 +35,15 @@ export function TokenPriceCard({ result }: TokenPriceCardProps) {
   const isNeutral = change24h === 0;
 
   const getPriceChangeColor = () => {
-    if (isPositive) return 'text-green-500';
-    if (isNegative) return 'text-red-500';
-    return 'text-muted-foreground';
+    if (isPositive) return 'text-vet-success';
+    if (isNegative) return 'text-vet-error';
+    return 'text-vet-text-secondary';
   };
 
   const getPriceChangeBg = () => {
-    if (isPositive) return 'from-green-500/10 to-green-500/5 border-green-500/20';
-    if (isNegative) return 'from-red-500/10 to-red-500/5 border-red-500/20';
-    return 'from-muted/10 to-muted/5 border-muted/20';
+    if (isPositive) return 'from-vet-success/20 to-vet-success/10 border-vet-success/30';
+    if (isNegative) return 'from-vet-error/20 to-vet-error/10 border-vet-error/30';
+    return 'from-vet-surface/10 to-vet-surface/5 border-vet-border';
   };
 
   const getPriceChangeIcon = () => {
@@ -58,41 +58,50 @@ export function TokenPriceCard({ result }: TokenPriceCardProps) {
   };
 
   return (
-    <Card className="border-primary/20 bg-card/50 backdrop-blur">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">Token Price</CardTitle>
-            <CardDescription>Current market price</CardDescription>
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      className="vet-glass-card"
+    >
+      {/* Header */}
+      <div className="px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-vet-accent">
+              <DollarSign className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-vet-text-primary">Token Price</h3>
           </div>
-          <Badge variant="secondary" className="text-lg font-bold">
+          <Badge variant="secondary" className="text-lg font-bold bg-vet-accent/20 text-vet-accent border-vet-accent/30">
             {symbol}
           </Badge>
         </div>
-      </CardHeader>
+        <p className="text-sm text-vet-text-secondary mt-1">Current market price</p>
+      </div>
 
-      <CardContent className="space-y-4">
+      {/* Content */}
+      <div className="px-6 pb-6 space-y-4">
         {/* Price Display */}
         <div className={`p-6 rounded-lg bg-gradient-to-br border ${getPriceChangeBg()}`}>
           <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="h-5 w-5 text-primary" />
-            <span className="text-sm text-muted-foreground">Current Price</span>
+            <DollarSign className="h-5 w-5 text-vet-accent" />
+            <span className="text-sm text-vet-text-secondary">Current Price</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold text-primary">
+            <span className="text-4xl font-bold text-vet-text-primary">
               ${price.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: price < 1 ? 6 : 2,
               })}
             </span>
-            <span className="text-xl text-muted-foreground">USD</span>
+            <span className="text-xl text-vet-text-secondary">USD</span>
           </div>
         </div>
 
         {/* 24h Price Change */}
-        <div className="p-4 rounded-lg bg-muted/50">
+        <div className="vet-tool-card">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">24h Change</span>
+            <span className="text-sm text-vet-text-secondary">24h Change</span>
             <div className={`flex items-center gap-2 ${getPriceChangeColor()}`}>
               {getPriceChangeIcon()}
               <span className="text-2xl font-bold">
@@ -104,14 +113,14 @@ export function TokenPriceCard({ result }: TokenPriceCardProps) {
           {/* Price Movement Indicator */}
           <div className="mt-3">
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-vet-surface/50 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all ${
                     isPositive
-                      ? 'bg-green-500'
+                      ? 'bg-vet-success'
                       : isNegative
-                      ? 'bg-red-500'
-                      : 'bg-muted-foreground'
+                      ? 'bg-vet-error'
+                      : 'bg-vet-text-secondary'
                   }`}
                   style={{
                     width: `${Math.min(Math.abs(change24h) * 10, 100)}%`,
@@ -120,7 +129,7 @@ export function TokenPriceCard({ result }: TokenPriceCardProps) {
                 />
               </div>
             </div>
-            <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+            <div className="flex justify-between mt-1 text-xs text-vet-text-secondary">
               <span>Down</span>
               <span>No Change</span>
               <span>Up</span>
@@ -129,26 +138,31 @@ export function TokenPriceCard({ result }: TokenPriceCardProps) {
         </div>
 
         {/* Additional Details */}
-        <div className="space-y-2 pt-2 border-t">
+        <div className="space-y-2 pt-2 border-t border-vet-border">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Token</span>
-            <span className="text-sm font-medium">{symbol}</span>
+            <span className="text-xs text-vet-text-secondary">Token</span>
+            <span className="text-sm font-medium text-vet-text-primary">{symbol}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Formatted Price</span>
-            <span className="text-sm font-mono">{formattedPrice}</span>
+            <span className="text-xs text-vet-text-secondary">Formatted Price</span>
+            <span className="text-sm font-mono text-vet-text-primary">{formattedPrice}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Trend</span>
+            <span className="text-xs text-vet-text-secondary">Trend</span>
             <Badge
-              variant={isPositive ? 'default' : isNegative ? 'destructive' : 'secondary'}
-              className="text-xs"
+              className={`text-xs ${
+                isPositive
+                  ? 'bg-vet-success/20 text-vet-success border-vet-success/30'
+                  : isNegative
+                  ? 'bg-vet-error/20 text-vet-error border-vet-error/30'
+                  : 'bg-vet-surface/50 text-vet-text-secondary border-vet-border'
+              }`}
             >
               {priceChange.toUpperCase()}
             </Badge>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }

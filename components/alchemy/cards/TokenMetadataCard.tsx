@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Coins, ExternalLink, Copy, CheckCircle2 } from 'lucide-react';
@@ -84,53 +84,64 @@ export function TokenMetadataCard({ result }: TokenMetadataCardProps) {
   };
 
   return (
-    <Card className="border-primary/20 bg-card/50 backdrop-blur">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">Token Metadata</CardTitle>
-            <CardDescription>ERC20 Token Information</CardDescription>
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      className="vet-glass-card"
+    >
+      {/* Header */}
+      <div className="px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-vet-accent">
+              <Coins className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-vet-text-primary">Token Metadata</h3>
           </div>
-          <Badge variant="outline">{getChainName(chainId)}</Badge>
+          <Badge variant="outline" className="border-vet-accent/30 text-vet-accent">
+            {getChainName(chainId)}
+          </Badge>
         </div>
-      </CardHeader>
+        <p className="text-sm text-vet-text-secondary mt-1">ERC20 Token Information</p>
+      </div>
 
-      <CardContent className="space-y-4">
+      {/* Content */}
+      <div className="px-6 pb-6 space-y-4">
         {/* Token Logo and Name */}
-        <div className="flex items-center gap-4 p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+        <div className="flex items-center gap-4 p-4 rounded-lg bg-gradient-to-br from-vet-accent/20 to-vet-success/20 border border-vet-accent/30">
           <TokenLogo
             src={logo}
             alt={symbol}
             size={64}
             fallback={
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Coins className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 rounded-full bg-vet-accent/20 flex items-center justify-center">
+                <Coins className="h-8 w-8 text-vet-accent" />
               </div>
             }
           />
 
           <div className="flex-1">
-            <div className="text-2xl font-bold text-primary">{symbol}</div>
-            <div className="text-muted-foreground">{name}</div>
+            <div className="text-2xl font-bold text-vet-text-primary">{symbol}</div>
+            <div className="text-vet-text-secondary">{name}</div>
           </div>
         </div>
 
         {/* Token Details */}
         <div className="space-y-3">
           {/* Contract Address */}
-          <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+          <div className="vet-tool-card flex justify-between items-center">
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Contract Address</span>
-              <span className="text-sm font-mono">{shortenAddress(contractAddress)}</span>
+              <span className="text-xs text-vet-text-secondary uppercase tracking-wide">Contract Address</span>
+              <span className="text-sm font-mono text-vet-text-primary">{shortenAddress(contractAddress)}</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleCopy}
-              className="h-8 w-8 p-0"
+              className="vet-button-secondary h-8 w-8 p-0"
             >
               {copied ? (
-                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <CheckCircle2 className="h-4 w-4 text-vet-success" />
               ) : (
                 <Copy className="h-4 w-4" />
               )}
@@ -138,46 +149,45 @@ export function TokenMetadataCard({ result }: TokenMetadataCardProps) {
           </div>
 
           {/* Symbol */}
-          <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-            <span className="text-sm text-muted-foreground">Symbol</span>
-            <Badge variant="secondary" className="text-base font-bold">
+          <div className="vet-tool-card flex justify-between items-center">
+            <span className="text-sm text-vet-text-secondary">Symbol</span>
+            <Badge variant="secondary" className="text-base font-bold bg-vet-accent/20 text-vet-accent border-vet-accent/30">
               {symbol}
             </Badge>
           </div>
 
           {/* Decimals */}
-          <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-            <span className="text-sm text-muted-foreground">Decimals</span>
-            <span className="text-sm font-medium">{decimals}</span>
+          <div className="vet-tool-card flex justify-between items-center">
+            <span className="text-sm text-vet-text-secondary">Decimals</span>
+            <span className="text-sm font-medium text-vet-text-primary">{decimals}</span>
           </div>
 
           {/* Total Supply */}
           {totalSupply && (
-            <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-              <span className="text-sm text-muted-foreground">Total Supply</span>
+            <div className="vet-tool-card flex justify-between items-center">
+              <span className="text-sm text-vet-text-secondary">Total Supply</span>
               <div className="text-right">
-                <div className="text-sm font-medium">{formatTotalSupply(totalSupply)}</div>
-                <div className="text-xs text-muted-foreground">{symbol}</div>
+                <div className="text-sm font-medium text-vet-text-primary">{formatTotalSupply(totalSupply)}</div>
+                <div className="text-xs text-vet-text-secondary">{symbol}</div>
               </div>
             </div>
           )}
 
           {/* Network */}
-          <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-            <span className="text-sm text-muted-foreground">Network</span>
-            <span className="text-sm font-medium">{getChainName(chainId)}</span>
+          <div className="vet-tool-card flex justify-between items-center">
+            <span className="text-sm text-vet-text-secondary">Network</span>
+            <span className="text-sm font-medium text-vet-text-primary">{getChainName(chainId)}</span>
           </div>
         </div>
 
         {/* Explorer Link */}
         <Button
-          variant="outline"
-          className="w-full"
+          className="vet-button-secondary w-full"
           onClick={() => window.open(getExplorerUrl(), '_blank')}
         >
           View on Explorer <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }

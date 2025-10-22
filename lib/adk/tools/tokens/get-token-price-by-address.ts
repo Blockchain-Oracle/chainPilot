@@ -20,6 +20,20 @@ export const tokenPriceByAddressTool = createTool({
     chainId: z.number().optional().default(1).describe('Chain ID (1=Ethereum, 8453=Base, 137=Polygon, etc.)'),
   }),
   fn: async ({ contractAddress, chainId = 1 }, context) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'get_token_price_by_address',
+      params: { contractAddress, chainId },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'get_token_price_by_address');
+    context.state.set('last_contract_address', contractAddress);
+    context.state.set('last_chain_id', chainId);
+
     const apiKey = process.env.ALCHEMY_API_KEY || process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 
     if (!apiKey) {
@@ -75,7 +89,7 @@ export const tokenPriceByAddressTool = createTool({
 
     const priceInfo = tokenData.prices[0];
 
-    return {
+    const result = {
       success: true,
       data: {
         contractAddress,
@@ -94,6 +108,12 @@ export const tokenPriceByAddressTool = createTool({
         priceChange: priceInfo.percentChange24h > 0 ? 'up' : priceInfo.percentChange24h < 0 ? 'down' : 'stable',
       },
     };
+
+    // Store result in state before returning
+    context.state.set('last_result', result.data);
+    context.state.set('last_token_price', result.data);
+
+    return result;
   }
 });
 

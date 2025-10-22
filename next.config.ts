@@ -32,14 +32,6 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-  experimental: {
-    // Enable server actions and other experimental features as needed
-    serverActions: true,
-  },
-  // Turbo configuration
-  turbo: {
-    root: process.cwd(),
-  },
 };
 
 export default nextConfig;

@@ -31,23 +31,15 @@ export async function GET(request: NextRequest) {
     // Authenticate wallet and get/create user
     const user = await authenticateWallet(walletAddress);
 
-    const chats = await getChatsByUserId({
+    const result = await getChatsByUserId({
       id: user.id,
-      limit: limit + 1, // Fetch one extra to check if there are more
+      limit,
       startingAfter,
       endingBefore,
     });
 
-    // Check if there are more chats
-    const hasMore = chats.length > limit;
-
-    // Return only the requested number of chats
-    const returnedChats = hasMore ? chats.slice(0, limit) : chats;
-
-    return Response.json({
-      chats: returnedChats,
-      hasMore,
-    });
+    // getChatsByUserId already returns { chats: [...], hasMore: boolean }
+    return Response.json(result);
   } catch (error) {
     console.error("Error fetching chat history:", error);
     return new ChatSDKError(

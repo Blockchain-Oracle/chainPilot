@@ -35,6 +35,22 @@ export const prepareTokenApprovalTool = createTool({
       .describe('Name of the spender contract (e.g., "Uniswap V3 Router")'),
   }),
   fn: async ({ from, tokenAddress, spender, amount, chainId, spenderName }, context: any) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'prepare_token_approval',
+      params: { from, tokenAddress, spender, amount, chainId, spenderName },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'prepare_token_approval');
+    context.state.set('last_from', from);
+    context.state.set('last_token_address', tokenAddress);
+    context.state.set('last_spender', spender);
+    context.state.set('last_chain_id', chainId);
+
     // Validate addresses
     if (!isAddress(from)) {
       return { success: false, error: `Invalid owner address: ${from}` };
@@ -124,7 +140,7 @@ export const prepareTokenApprovalTool = createTool({
     }
 
     // Return transaction data
-    return {
+    const result = {
       success: true,
       transaction: {
         type: 'token_approval',
@@ -143,5 +159,11 @@ export const prepareTokenApprovalTool = createTool({
         isUnlimited,
       },
     };
+
+    // Store result in state before returning
+    context.state.set('last_result', result.transaction);
+    context.state.set('last_prepared_transaction', result.transaction);
+
+    return result;
   }
 });

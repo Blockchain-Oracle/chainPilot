@@ -11,6 +11,20 @@ export const transactionHistoryTool = createTool({
     limit: z.number().optional().default(10).describe('Number of transactions to return'),
   }),
   fn: async ({ address, chainId = 1, limit = 10 }, context) => {
+    // Track query in conversation state
+    const queryHistory = context.state.get('query_history', []);
+    queryHistory.push({
+      tool: 'get_transaction_history',
+      params: { address, chainId, limit },
+      timestamp: new Date().toISOString(),
+    });
+    context.state.set('query_history', queryHistory);
+
+    // Remember last query details for context persistence
+    context.state.set('last_queried_tool', 'get_transaction_history');
+    context.state.set('last_address', address);
+    context.state.set('last_chain_id', chainId);
+
     try {
       const alchemy = getAlchemyService();
 
@@ -30,7 +44,7 @@ export const transactionHistoryTool = createTool({
         explorerUrl: alchemy.getExplorerUrl(tx.hash, chainId),
       }));
 
-      return {
+      const result = {
         success: true,
         data: {
           address,
@@ -39,6 +53,12 @@ export const transactionHistoryTool = createTool({
           transactions: transactionsWithLinks,
         },
       };
+
+      // Store result in state before returning
+      context.state.set('last_result', result.data);
+      context.state.set('last_transactions', transactionsWithLinks);
+
+      return result;
     } catch (error: any) {
       return {
         success: false,

@@ -1,244 +1,349 @@
-/* Prevent white flash on page load */
-html, body {
-    background-color: hsl(220, 13%, 8%) !important;
-    color: hsl(210, 20%, 95%) !important;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    --foreground-rgb: 0, 0, 0;
-    --background-start-rgb: 214, 219, 220;
-    --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --foreground-rgb: 255, 255, 255;
-        --background-start-rgb: 0, 0, 0;
-        --background-end-rgb: 0, 0, 0;
-    }
-}
-
-@layer utilities {
-    .text-balance {
-        text-wrap: balance;
-    }
-}
-
+/* VeChain AI Terminal Theme Variables */
 @layer base {
-    :root {
-        --background: 0 0% 100%;
-        --foreground: 0 0% 3.9%;
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 3.9%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 3.9%;
-        --primary: 0 0% 9%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96.1%;
-        --secondary-foreground: 0 0% 9%;
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45.1%;
-        --accent: 0 0% 96.1%;
-        --accent-foreground: 0 0% 9%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 0 0% 3.9%;
-        --chart-1: 12 76% 61%;
-        --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-        --chart-4: 43 74% 66%;
-        --chart-5: 27 87% 67%;
-        --radius: 0.5rem;
-        --sidebar-background: 0 0% 98%;
-        --sidebar-foreground: 240 5.3% 26.1%;
-        --sidebar-primary: 240 5.9% 10%;
-        --sidebar-primary-foreground: 0 0% 98%;
-        --sidebar-accent: 240 4.8% 95.9%;
-        --sidebar-accent-foreground: 240 5.9% 10%;
-        --sidebar-border: 220 13% 91%;
-        --sidebar-ring: 217.2 91.2% 59.8%;
-    }
-    .dark {
-        --background: 0 0% 3.9%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 3.9%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 3.9%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 0 0% 9%;
-        --secondary: 0 0% 14.9%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 0 0% 14.9%;
-        --muted-foreground: 0 0% 63.9%;
-        --accent: 0 0% 14.9%;
-        --accent-foreground: 0 0% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 14.9%;
-        --input: 0 0% 14.9%;
-        --ring: 0 0% 83.1%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
-        --sidebar-background: 220 13% 6%;
-        --sidebar-foreground: 210 20% 85%;
-        --sidebar-primary: 26 78% 61%;
-        --sidebar-primary-foreground: 220 13% 8%;
-        --sidebar-accent: 220 13% 12%;
-        --sidebar-accent-foreground: 210 20% 85%;
-        --sidebar-border: 220 13% 15%;
-        --sidebar-ring: 26 78% 61%;
-    }
+  :root {
+    /* Light theme (minimal usage) */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* VeChain AI Terminal Dark Theme */
+    --background: 0 0% 4%; /* #0B0B0B */
+    --foreground: 0 0% 100%; /* #FFFFFF */
+    --card: 0 0% 7%; /* #111111 */
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 320 100% 50%; /* #E2008C */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 8%; /* #151515 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 69%; /* #B0B0B0 */
+    --accent: 320 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 12%; /* #1F1F1F */
+    --input: 0 0% 8%;
+    --ring: 320 100% 50%;
+    --chart-1: 160 100% 50%; /* #00C896 */
+    --chart-2: 0 84% 60%; /* #FF3B5C */
+    --chart-3: 320 100% 50%; /* #E2008C */
+    --chart-4: 30 100% 50%; /* #FFB100 */
+    --chart-5: 280 100% 50%; /* #8000FF */
+    --sidebar-background: 0 0% 7%; /* #111111 */
+    --sidebar-foreground: 0 0% 69%; /* #B0B0B0 */
+    --sidebar-primary: 320 100% 50%; /* #E2008C */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 8%; /* #151515 */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 12%; /* #1F1F1F */
+    --sidebar-ring: 320 100% 50%;
+  }
 }
 
+/* Base Styles */
 @layer base {
-    * {
-        border-color: hsl(var(--border));
-    }
+  * {
+    border-color: hsl(var(--border));
+  }
 
-    body {
-        background-color: hsl(var(--background));
-        color: hsl(var(--foreground));
-    }
+  html, body {
+    background: #0B0B0B;
+    color: hsl(var(--foreground));
+    min-height: 100vh;
+    font-family: 'Inter', var(--font-geist), system-ui, sans-serif;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    background-attachment: fixed;
+  }
 }
 
-.skeleton {
-    * {
-        pointer-events: none !important;
-    }
+/* VeChain AI Terminal Components */
+@layer components {
+  /* Chat Message Bubbles - Exact mockup styling */
+  .vet-chat-user {
+    @apply max-w-[80%] ml-auto bg-[#1A1A1A] border border-[#2A2A2A] text-white rounded-2xl px-4 py-3 text-sm;
+  }
 
-    *[class^="text-"] {
-        color: transparent;
-        border-radius: 0.375rem;
-        background-color: hsl(var(--foreground) / 0.2);
-        user-select: none;
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
+  .vet-chat-ai {
+    @apply max-w-[80%] bg-gradient-to-br from-[#80004B] to-[#0D0010] text-white rounded-2xl px-4 py-3 text-sm shadow-[0_0_15px_rgba(226,0,140,0.2)];
+  }
 
-    .skeleton-bg {
-        background-color: hsl(var(--foreground) / 0.1);
-    }
+  /* Glass Effect Cards */
+  .vet-glass-card {
+    @apply bg-vet-surface/80 backdrop-blur-xl border border-vet-border rounded-2xl shadow-vet-glow-subtle;
+  }
 
-    .skeleton-div {
-        background-color: hsl(var(--foreground) / 0.2);
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
+  /* VeChain AI Terminal Buttons - With shimmer effect */
+  .vet-button-primary {
+    @apply relative overflow-hidden bg-[#E2008C] hover:bg-[#FF1FD6] text-white rounded-xl px-4 py-2 font-semibold transition-all duration-200 shadow-vet-glow;
+  }
+
+  /* Shimmer effect for send button */
+  .vet-button-shimmer::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.35) 20%, transparent 40%);
+    mix-blend-mode: screen;
+    animation: shimmer 1.8s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .vet-button-secondary {
+    @apply bg-transparent border border-vet-border text-vet-text-secondary hover:bg-vet-hover rounded-xl px-4 py-2 font-semibold transition-all duration-200;
+  }
+
+  /* Loading States */
+  .vet-loading-dots {
+    @apply flex items-center gap-1;
+  }
+
+  .vet-loading-dot {
+    @apply w-1.5 h-1.5 rounded-full bg-white/80 animate-vet-pulse;
+  }
+
+  /* Success/Error States */
+  .vet-success {
+    @apply text-vet-success bg-vet-success/10 border border-vet-success/20 rounded-xl px-3 py-2;
+  }
+
+  .vet-error {
+    @apply text-vet-error bg-vet-error/10 border border-vet-error/20 rounded-xl px-3 py-2;
+  }
+
+  /* Tool Cards */
+  .vet-tool-card {
+    @apply bg-vet-surface/70 backdrop-blur-sm border border-vet-border rounded-xl p-4;
+  }
+
+  /* Inner transaction/info cards (like in mockup) */
+  .vet-info-card {
+    @apply bg-[#151515] rounded-xl p-3 border border-[#2A2A2A] text-sm;
+  }
+
+  /* Transaction list item */
+  .vet-transaction-item {
+    @apply flex justify-between items-center text-sm text-[#B3B3B3];
+  }
+
+  /* Positive/negative amounts */
+  .vet-amount-positive {
+    @apply text-[#00FF9D] font-medium;
+  }
+
+  .vet-amount-negative {
+    @apply text-[#FF3B5C] font-medium;
+  }
+
+  /* Sidebar */
+  .vet-sidebar {
+    @apply bg-vet-surface/80 backdrop-blur-xl border-r border-vet-border;
+  }
+
+  /* Input Fields - Mockup styling */
+  .vet-input {
+    @apply bg-[#111111] border border-[#2A2A2A] rounded-2xl px-4 py-3 text-white placeholder:text-[#B3B3B3] focus:border-vet-accent focus:ring-0 focus:outline-none transition-all duration-200;
+  }
+
+  /* Input container wrapper */
+  .vet-input-wrapper {
+    @apply flex items-center gap-3 bg-[#111111] rounded-2xl px-3 py-2 border border-[#2A2A2A];
+  }
+
+  /* Navigation */
+  .vet-nav {
+    @apply sticky top-0 z-50 backdrop-blur-md bg-black/30 border-b border-vet-border;
+  }
+
+  /* Hero Section */
+  .vet-hero {
+    @apply relative flex flex-col justify-center items-center text-center px-6 pt-32 pb-24;
+  }
+
+  /* Ambient Glow */
+  .vet-glow-bg {
+    @apply absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-vet-accent/10 blur-[180px];
+  }
 }
 
-/* Scrollbar styling for dark theme */
+/* Custom Scrollbar */
 .dark::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 .dark::-webkit-scrollbar-track {
-    background: hsl(220, 13%, 12%);
+  background: #111111;
 }
 
 .dark::-webkit-scrollbar-thumb {
-    background: hsl(220, 13%, 20%);
-    border-radius: 4px;
+  background: #1F1F1F;
+  border-radius: 4px;
 }
 
 .dark::-webkit-scrollbar-thumb:hover {
-    background: hsl(26, 78%, 61%);
+  background: #E2008C;
 }
 
+/* Typography */
+.vet-heading {
+  @apply text-5xl md:text-6xl font-semibold leading-tight max-w-3xl;
+}
+
+.vet-subheading {
+  @apply text-3xl md:text-4xl font-semibold;
+}
+
+.vet-body {
+  @apply text-lg text-vet-text-secondary;
+}
+
+.vet-caption {
+  @apply text-sm text-vet-text-muted;
+}
+
+/* Skeleton Loading (preserved from original) */
+.skeleton {
+  * {
+    pointer-events: none !important;
+  }
+
+  *[class^="text-"] {
+    color: transparent;
+    border-radius: 0.375rem;
+    background-color: hsl(var(--foreground) / 0.2);
+    user-select: none;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .skeleton-bg {
+    background-color: hsl(var(--foreground) / 0.1);
+  }
+
+  .skeleton-div {
+    background-color: hsl(var(--foreground) / 0.2);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* ProseMirror Editor */
 .ProseMirror {
-    outline: none;
+  outline: none;
 }
 
+/* CodeMirror Editor */
 .cm-editor,
 .cm-gutters {
-    background-color: hsl(var(--background)) !important;
-    outline: none !important;
+  background-color: hsl(var(--background)) !important;
+  outline: none !important;
 }
 
 .dark .cm-editor,
 .dark .cm-gutters {
-    background-color: hsl(220 13% 15%) !important;
+  background-color: #151515 !important;
 }
 
 .cm-editor::selection {
-    background-color: hsl(220 13% 18%) !important;
+  background-color: #1F1F1F !important;
 }
 
 .ͼo.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
 .ͼo.cm-selectionBackground,
 .ͼo.cm-content::selection {
-    background-color: hsl(240 6% 90%) !important;
+  background-color: hsl(240 6% 90%) !important;
 }
 
 .dark .ͼo.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
 .dark .ͼo.cm-selectionBackground,
 .dark .ͼo.cm-content::selection {
-    background-color: hsl(220 13% 18%) !important;
+  background-color: #1F1F1F !important;
 }
 
 .cm-activeLine,
 .cm-activeLineGutter {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .cm-activeLine {
-    border-top-right-radius: 0.125rem !important;
-    border-bottom-right-radius: 0.125rem !important;
+  border-top-right-radius: 0.125rem !important;
+  border-bottom-right-radius: 0.125rem !important;
 }
 
 .cm-lineNumbers {
-    min-width: 1.75rem;
+  min-width: 1.75rem;
 }
 
 .cm-foldGutter {
-    min-width: 0.75rem;
+  min-width: 0.75rem;
 }
 
 .cm-lineNumbers .cm-activeLineGutter {
-    border-top-left-radius: 0.125rem !important;
-    border-bottom-left-radius: 0.125rem !important;
+  border-top-left-radius: 0.125rem !important;
+  border-bottom-left-radius: 0.125rem !important;
 }
 
+/* Suggestion Highlighting */
 .suggestion-highlight {
-    background-color: rgb(191 219 254);
+  background-color: rgb(191 219 254);
 }
 
 .suggestion-highlight:hover {
-    background-color: rgb(147 197 253);
+  background-color: rgb(147 197 253);
 }
 
 .dark .suggestion-highlight {
-    background-color: rgb(59 130 246 / 0.4);
-    color: rgb(239 246 255);
+  background-color: rgb(226 0 140 / 0.3);
+  color: rgb(255 255 255);
 }
 
 .dark .suggestion-highlight:hover {
-    background-color: rgb(96 165 250 / 0.5);
+  background-color: rgb(226 0 140 / 0.4);
 }
 
+/* Animations */
 @keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
-
-
-
-@layer base {
-  * {
-    @apply border-border;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
