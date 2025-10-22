@@ -246,7 +246,7 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
     <div data-testid="suggested-actions" className="w-full max-w-full overflow-hidden space-y-4 px-4 md:px-0">
       {/* Category Pills - Terminal Style */}
       <div className="w-full max-w-full overflow-hidden">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+        <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {categories.map((category, index) => (
             <motion.button
               key={category.name}
@@ -286,7 +286,7 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
 
       {/* Action Cards - Terminal Card Style */}
       <div className="w-full max-w-full overflow-hidden">
-        <div className="overflow-x-auto pb-2 scrollbar-hide">
+        <div className="overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="flex gap-2 sm:gap-3">
             {categories[activeCategory].actions.map((suggestedAction, index) => (
               <motion.div
