@@ -18,6 +18,10 @@ import type { ChatMessage } from "@/lib/types";
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+// Force pg module to be loaded (fixes Vercel production build issue)
+// This ensures pg is available when ADK tries to use it
+require('pg');
+
 // Create ADK database session service (reused across requests)
 // This will automatically create the required tables if they don't exist
 const adkSessionService = createDatabaseSessionService(
