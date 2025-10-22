@@ -88,9 +88,9 @@ export function MessageEditor({
               const index = messages.findIndex((m) => m.id === message.id);
 
               if (index !== -1) {
-                const updatedMessage: ChatMessage = {
+                const updatedMessage = {
                   ...message,
-                  parts: [{ type: 'text', text: draftContent }],
+                  parts: [{ type: 'text', text: draftContent, content: draftContent }],
                 };
 
                 return [...messages.slice(0, index), updatedMessage];

@@ -76,7 +76,8 @@ export const prepareTokenApprovalTool = createTool({
     let tokenDecimals = 18;
 
     try {
-      const metadata = await alchemy.core.getTokenMetadata(tokenAddress);
+      const alchemyInstance = (alchemy as any).getAlchemy(chainId);
+      const metadata = await alchemyInstance.core.getTokenMetadata(tokenAddress);
       if (metadata.symbol) tokenSymbol = metadata.symbol;
       if (metadata.decimals !== null) tokenDecimals = metadata.decimals;
     } catch (error) {
@@ -123,12 +124,13 @@ export const prepareTokenApprovalTool = createTool({
     let gasPrice: string | undefined;
 
     try {
-      const feeData = await alchemy.core.getFeeData();
+      const alchemyInstance = (alchemy as any).getAlchemy(chainId);
+      const feeData = await alchemyInstance.core.getFeeData();
       if (feeData.gasPrice) {
         gasPrice = feeData.gasPrice.toString();
       }
 
-      const estimatedGas = await alchemy.core.estimateGas({
+      const estimatedGas = await alchemyInstance.core.estimateGas({
         from,
         to: tokenAddress,
         data: encodedData,

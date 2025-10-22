@@ -46,6 +46,8 @@ interface NftsOwnedCardProps {
 }
 
 export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
+  const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
+
   // Handle undefined or error results
   if (!result || !result.success || !result.data) {
     return (
@@ -65,7 +67,6 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
   }
 
   const { address, chainId, totalNFTs, collections = [], nfts = [] } = result.data;
-  const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
 
   const toggleCollection = (collectionName: string) => {
     const newExpanded = new Set(expandedCollections);

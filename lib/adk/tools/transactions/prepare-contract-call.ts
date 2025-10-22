@@ -102,12 +102,13 @@ export const prepareContractCallTool = createTool({
     let gasPrice: string | undefined;
 
     try {
-      const feeData = await alchemy.core.getFeeData();
+      const alchemyInstance = (alchemy as any).getAlchemy(chainId);
+      const feeData = await alchemyInstance.core.getFeeData();
       if (feeData.gasPrice) {
         gasPrice = feeData.gasPrice.toString();
       }
 
-      const estimatedGas = await alchemy.core.estimateGas({
+      const estimatedGas = await alchemyInstance.core.estimateGas({
         from,
         to: contractAddress,
         data,

@@ -2,7 +2,7 @@
 import cx from "classnames";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useState } from "react";
-import { PencilEditIcon, SparklesIcon } from "./icons";
+import { PencilEditIcon } from "./icons";
 import { Markdown } from "./markdown";
 import { MessageActions } from "./message-actions";
 import { PreviewAttachment } from "./preview-attachment";
@@ -18,6 +18,7 @@ import { useDataStream } from "./data-stream-provider";
 import ToolCallLoader from "@/components/tool-call-loader";
 import { SuggestionAwareMarkdown } from "@/components/SuggestionAwareMarkdown";
 import { InfoIcon } from "lucide-react";
+import Image from "next/image";
 
 // Alchemy/ADK Tool Display Components
 import {
@@ -82,9 +83,13 @@ const PurePreviewMessage = ({
         >
           {message.role === "assistant" && (
             <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
-              <div className="translate-y-px">
-                <SparklesIcon size={14} color="#E2008C" />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="ChainPilot"
+                width={20}
+                height={20}
+                className="object-contain"
+              />
             </div>
           )}
           {message.role === "system" && (
@@ -130,8 +135,8 @@ const PurePreviewMessage = ({
               if (type.startsWith("tool-")) {
                 console.log(`[Message ${message.id}] Part ${index}:`, {
                   type,
-                  toolCallId: part.toolCallId,
-                  state: part.state,
+                  toolCallId: (part as any).toolCallId,
+                  state: (part as any).state,
                 });
               }
 
@@ -210,12 +215,13 @@ const PurePreviewMessage = ({
 
               // Tool handler for Alchemy/ADK tools with custom cards
               if (type.startsWith("tool-")) {
-                const { toolCallId, state } = part;
+                const toolCallId = (part as any).toolCallId;
+                const state = (part as any).state;
                 const toolType = type.replace("tool-", "");
                 const toolName = toolType.replace(/_/g, " ");
 
                 // Use index in key to prevent duplicate key errors
-                const uniqueKey = `${toolCallId}-${index}`;
+                const uniqueKey = `${toolCallId || 'unknown'}-${index}`;
 
                 // Only show loading state during active streaming, not for saved messages
                 if (state === "input-available" && isLoading) {
@@ -233,7 +239,7 @@ const PurePreviewMessage = ({
 
                 // Only render the final output, skip input-available states in saved messages
                 if (state === "output-available") {
-                  const { output } = part;
+                  const output = (part as any).output;
 
                   // Validate output structure
                   if (!output) {
@@ -374,7 +380,13 @@ export const ThinkingMessage = () => {
     >
       <div className="flex gap-4 w-full">
         <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
-          <SparklesIcon size={14} color="#E2008C" />
+          <Image
+            src="/logo.png"
+            alt="ChainPilot"
+            width={20}
+            height={20}
+            className="object-contain"
+          />
         </div>
 
         <div className="flex flex-col gap-2 w-full">

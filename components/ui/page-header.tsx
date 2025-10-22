@@ -17,11 +17,11 @@ export function PageHeader() {
           <NavbarLeft>
             <Link href="/" className="flex items-center gap-2 text-xl font-bold">
               <Image
-                src="/logo-placeholder.svg"
-                alt="VeChain"
+                src="/logo.png"
+                alt="ChainPilot"
                 width={32}
                 height={32}
-                className="rounded-lg"
+                className="object-contain"
               />
               ChainPilot
             </Link>

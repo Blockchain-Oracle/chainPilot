@@ -4,13 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { 
-  BookOpen, 
-  Code, 
-  Server, 
+import {
+  BookOpen,
+  FileText,
   HelpCircle,
   Building2,
-  Coins
+  Puzzle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -24,27 +23,21 @@ const docsNavigation = [
   },
   {
     name: "Architecture",
-    href: "/docs/architecture", 
+    href: "/docs/architecture",
     icon: Building2,
-    description: "System design and technical overview"
+    description: "ADK-TS agent system design"
   },
   {
-    name: "MCP Server",
-    href: "/docs/mcp-server",
-    icon: Server,
-    description: "MCP server setup and usage"
+    name: "API Reference",
+    href: "/docs/api-reference",
+    icon: FileText,
+    description: "Multi-chain API documentation"
   },
   {
-    name: "Earn",
-    href: "/docs/earn",
-    icon: Coins,
-    description: "VeBetter rewards and earning system"
-  },
-  {
-    name: "Examples",
-    href: "/docs/examples",
-    icon: Code,
-    description: "Code examples and tutorials"
+    name: "Integration Guides",
+    href: "/docs/integration-guides",
+    icon: Puzzle,
+    description: "How to integrate ChainPilot"
   },
   {
     name: "FAQ",

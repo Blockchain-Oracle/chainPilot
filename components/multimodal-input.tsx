@@ -22,6 +22,7 @@ import { Textarea } from "./ui/textarea";
 import { SuggestedActions } from "./suggested-actions";
 import equal from "fast-deep-equal";
 import type { Status, SetMessages, SendMessage, Message } from "@/lib/adk/types";
+import { generateUUID } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
@@ -164,7 +165,6 @@ export function MultimodalInput({
       adjustHeight();
     }
     // Only run once after hydration
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -188,6 +188,7 @@ export function MultimodalInput({
     window.history.replaceState({}, "", `/chat/${chatId}`);
 
     sendMessage({
+      id: generateUUID(),
       role: "user",
       parts: [
         ...attachments.map((attachment) => ({

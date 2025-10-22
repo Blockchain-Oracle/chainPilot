@@ -84,3 +84,4 @@ export function withCardErrorHandling<P extends { result: any }>(
     return <Component {...props} />;
   };
 }
+

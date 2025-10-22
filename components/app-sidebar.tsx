@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import Image from "next/image";
 
 export function AppSidebar() {
   const router = useRouter();
@@ -33,14 +34,23 @@ export function AppSidebar() {
               onClick={() => {
                 setOpenMobile(false);
               }}
-              className="flex flex-col group transition-all duration-300"
+              className="flex items-center gap-3 group transition-all duration-300"
             >
-              <h1 className="text-xl font-bold text-vet-text-primary group-hover:text-vet-accent transition-colors duration-200 tracking-tight">
-                ChainPilot
-              </h1>
-              <span className="text-[10px] text-vet-text-muted font-medium tracking-wider uppercase">
-                AI Terminal
-              </span>
+              <Image
+                src="/logo.png"
+                alt="ChainPilot Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-vet-text-primary group-hover:text-vet-accent transition-colors duration-200 tracking-tight">
+                  ChainPilot
+                </h1>
+                <span className="text-[10px] text-vet-text-muted font-medium tracking-wider uppercase">
+                  AI Terminal
+                </span>
+              </div>
             </Link>
 
             {/* New Chat Button */}

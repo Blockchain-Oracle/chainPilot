@@ -204,37 +204,37 @@ export class RedisSessionService extends BaseSessionService {
   /**
    * Append an event to the session (required by ADK)
    */
-  async appendEvent(
-    agentId: string,
-    userId: string,
-    sessionId: string,
-    event: any
-  ): Promise<void> {
+  async appendEvent(session: any, event: any): Promise<any> {
     try {
-      const session = await this.getSession(agentId, userId, sessionId);
-      if (!session) {
+      // Extract session details from the session object
+      const { agentId, userId, sessionId } = session;
+      
+      const existingSession = await this.getSession(agentId, userId, sessionId);
+      if (!existingSession) {
         throw new Error(`Session not found: ${sessionId}`);
       }
       
       // Ensure events array exists (defensive programming)
-      if (!session.events) session.events = [];
+      if (!existingSession.events) existingSession.events = [];
       
       // Append the event
-      session.events.push(event);
+      existingSession.events.push(event);
       
       // Also add to history if it's a user or assistant message
       if (event.author === 'user' || event.author !== 'user') {
-        if (!session.history) session.history = [];
-        session.history.push(event);
+        if (!existingSession.history) existingSession.history = [];
+        existingSession.history.push(event);
       }
       
       // Update last update time
-      session.lastUpdateTime = Date.now();
+      existingSession.lastUpdateTime = Date.now();
       
       // Save back to Redis
-      await this.set(sessionId, session);
+      await this.set(sessionId, existingSession);
+      
+      return event;
     } catch (error) {
-      console.error(`Failed to append event to session ${sessionId}:`, error);
+      console.error(`Failed to append event to session:`, error);
       throw error;
     }
   }

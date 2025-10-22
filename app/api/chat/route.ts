@@ -7,6 +7,7 @@ import {
   getMessagesByChatId,
   saveChat,
   saveMessages,
+  updateChatTitleById,
 } from "@/lib/db/queries";
 import { generateUUID } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "./actions";
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
         })
         .join(' ')
         .trim();
-      
+
       // Create a simple message object for title generation
       const titleMessage = {
         id: message.id,
@@ -84,10 +85,10 @@ export async function POST(request: NextRequest) {
         parts: [{ type: 'text', text: textContent }],
         createdAt: new Date()
       };
-      
-      const title = await generateTitleFromUserMessage({ 
-        message: titleMessage, 
-        selectedModel: selectedChatModel 
+
+      const title = await generateTitleFromUserMessage({
+        message: titleMessage,
+        selectedModel: selectedChatModel
       });
 
       await saveChat({
@@ -99,6 +100,38 @@ export async function POST(request: NextRequest) {
     } else {
       if (chat.userId !== user.id) {
         return new ChatSDKError("forbidden:chat").toResponse();
+      }
+
+      // Update title if chat still has "New Chat" as title (first message)
+      if (chat.title === "New Chat") {
+        // Extract text content for title generation
+        const textContent = message.parts
+          .map((part: any) => {
+            if (typeof part === 'string') return part;
+            if (part.type === 'text' && part.text) return part.text;
+            if (part.content) return part.content;
+            return '';
+          })
+          .join(' ')
+          .trim();
+
+        // Create a simple message object for title generation
+        const titleMessage = {
+          id: message.id,
+          role: message.role,
+          parts: [{ type: 'text', text: textContent }],
+          createdAt: new Date()
+        };
+
+        const title = await generateTitleFromUserMessage({
+          message: titleMessage,
+          selectedModel: selectedChatModel
+        });
+
+        await updateChatTitleById({
+          chatId: id,
+          title,
+        });
       }
     }
 

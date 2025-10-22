@@ -55,7 +55,13 @@ export const estimateGasTool = createTool({
         };
       }
 
-      const estimate = await alchemy.estimateGas(from, to, value, data, chainId);
+      const alchemyInstance = (alchemy as any).getAlchemy(chainId);
+      const estimate = await alchemyInstance.core.estimateGas({
+        from,
+        to,
+        value: `0x${parseInt(value).toString(16)}`,
+        data: data || '0x',
+      });
       const chainName = CHAIN_NAMES[chainId] || 'Unknown Chain';
 
       const result = {

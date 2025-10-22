@@ -37,7 +37,7 @@ export function LoadingScreen({
             className="absolute inset-0 flex items-center justify-center"
           >
             <Image
-              src="/logo-placeholder.svg"
+              src="/logo.svg"
               alt="ChainPilot"
               width={32}
               height={32}

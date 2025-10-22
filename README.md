@@ -1,15 +1,20 @@
 # ChainPilot
 
-  <img src="./docs/logo.png" alt="ChainPilot Logo"  />
+<div align="center">
+  <img src="./public/logo.png" alt="ChainPilot Logo" width="120" />
 
-<div align="center">  
   <h3>AI Agents that Act, not just chat.</h3>
-  
+
   <p>A minimal, intelligent terminal for on-chain actions, insights, and execution — designed for professionals building the next wave of agentic finance.</p>
 
   [![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-brightgreen)](https://chainpilot.vercel.app)
   [![ADK-TS](https://img.shields.io/badge/Built%20with-ADK--TS-blue)](https://adk.iqai.com/)
   [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+  <br />
+
+  <p><strong>Powered by</strong></p>
+  <img src="./public/adk.webp" alt="ADK Logo" width="80" />
 </div>
 
 ---
@@ -31,6 +36,12 @@
 ---
 
 ## ADK-TS Implementation
+
+<div align="center">
+  <img src="./public/adk.webp" alt="Agent Development Kit" width="100" />
+  <br />
+  <br />
+</div>
 
 This project demonstrates **comprehensive and advanced utilization** of the **Agent Development Kit for TypeScript (ADK-TS)** framework, showcasing sophisticated agent architecture, custom tool development, and enterprise-grade session management specifically built for the ADK-TS Hackathon 2025.
 
@@ -452,6 +463,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
+  <br />
+  <img src="./public/logo.png" alt="ChainPilot" width="60" />
+  <span style="margin: 0 20px;">✨</span>
+  <img src="./public/adk.webp" alt="ADK" width="60" />
+  <br />
+  <br />
   <p><strong>Built for the ADK-TS Hackathon 2025</strong></p>
   <p>Demonstrating the future of AI-powered blockchain interactions</p>
+  <br />
+  <p><em>ChainPilot × ADK-TS</em></p>
 </div>

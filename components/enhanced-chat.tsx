@@ -1,6 +1,5 @@
 "use client";
 
-import { SparklesIcon } from "./icons";
 import { SendHorizonal, User, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { useEffect, useRef, useState, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Markdown } from "@/components/markdown";
+import Image from "next/image";
 
 // Import Alchemy card components for generative UI
 import { BalanceCard } from "@/components/alchemy/cards/BalanceCard";
@@ -231,6 +231,7 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
       {children}
     </div>
   ));
+  CardWrapper.displayName = 'CardWrapper';
 
   // Render tool result card based on tool name
   const renderToolResultCard = (toolName: string, result: any, key: React.Key) => {
@@ -507,14 +508,20 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
         {messages.length === 0 && !isLoadingHistory && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="mb-4 p-4 rounded-full bg-vet-accent/10">
-              <SparklesIcon size={32} color="#E2008C" />
+              <Image
+                src="/logo.png"
+                alt="ChainPilot"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
             </div>
             <h3 className="text-xl font-semibold text-vet-text-primary mb-2">
               Welcome to ChainPilot
             </h3>
             <p className="text-vet-text-secondary max-w-md">
-              Your AI assistant for multi-chain blockchain operations and Web3 research. 
-              Ask me to check balances, track NFTs, prepare transactions, or research 
+              Your AI assistant for multi-chain blockchain operations and Web3 research.
+              Ask me to check balances, track NFTs, prepare transactions, or research
               tokens across Ethereum, Base, and more.
             </p>
 
@@ -553,9 +560,13 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
           >
             {msg.role === "agent" && (
               <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
-                <div className="translate-y-px">
-                  <SparklesIcon size={14} color="#E2008C" />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="ChainPilot"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
             )}
 
@@ -624,9 +635,13 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
               className="flex items-start gap-3 justify-start w-full"
             >
               <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
-                <div className="translate-y-px">
-                  <SparklesIcon size={14} color="#E2008C" />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="ChainPilot"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <div className="flex-1 max-w-[80%]">
                 <ResearchLoadingCard
@@ -639,9 +654,13 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
             // Show generic loading indicator
             <div className="flex items-start gap-3 justify-start">
               <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
-                <div className="translate-y-px">
-                  <SparklesIcon size={14} color="#E2008C" />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="ChainPilot"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <div className="bg-vet-surface border border-vet-border rounded-2xl px-4 py-3 flex items-center gap-2">
                 <span className="inline-block w-2 h-2 bg-vet-accent rounded-full animate-bounce [animation-delay:-0.3s]" />

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { memo } from "react";
 import type { SendMessage } from "@/lib/adk/types";
+import { generateUUID } from "@/lib/utils";
 import type { VisibilityType } from "./visibility-selector";
 import type { ChatMessage } from "@/lib/types";
 import { toast } from "sonner";
@@ -71,6 +72,7 @@ function PureSuggestedActions({
               window.history.replaceState({}, "", `/chat/${chatId}`);
 
               sendMessage({
+                id: generateUUID(),
                 role: "user",
                 parts: [{ type: "text", text: suggestedAction.action }],
               });

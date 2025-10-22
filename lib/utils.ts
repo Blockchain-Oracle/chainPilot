@@ -99,6 +99,37 @@ export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
   }));
 }
 
+// Convert ADK Message type to ChatMessage for compatibility
+export function convertADKToUIMessages(messages: any[]): ChatMessage[] {
+  return messages.map((message) => ({
+    id: message.id,
+    role: message.role as "user" | "assistant" | "system",
+    parts: message.parts.map((part: any) => ({
+      type: part.type,
+      text: part.text || part.content,
+      ...part,
+    })) as UIMessagePart<CustomUIDataTypes, any>[],
+    metadata: {
+      createdAt: message.createdAt ? formatISO(message.createdAt) : formatISO(new Date()),
+    },
+  }));
+}
+
+// Convert ChatMessage back to ADK Message type for compatibility
+export function convertUIToADKMessages(messages: ChatMessage[]): any[] {
+  return messages.map((message) => ({
+    id: message.id,
+    role: message.role,
+    parts: message.parts.map((part: any) => ({
+      type: part.type,
+      text: part.text,
+      content: part.text, // Keep content for backward compatibility
+      ...part,
+    })),
+    createdAt: message.metadata?.createdAt ? new Date(message.metadata.createdAt) : new Date(),
+  }));
+}
+
 export function getTextFromMessage(message: ChatMessage): string {
   return message.parts
     .filter((part) => part.type === "text")

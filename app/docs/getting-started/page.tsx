@@ -2,14 +2,15 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { 
-  ArrowRight, 
-  CheckCircle, 
-  Wallet, 
-  MessageSquare, 
+import {
+  ArrowRight,
+  CheckCircle,
+  Wallet,
+  MessageSquare,
   Search,
   Code,
-  ExternalLink
+  ExternalLink,
+  Layers
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,57 +20,57 @@ const steps = [
   {
     number: "01",
     title: "Connect Your Wallet",
-    description: "Connect your VeChain wallet to access all features",
+    description: "Connect your multi-chain wallet to access all features across EVM chains and Solana",
     icon: Wallet,
     details: [
-      "VeChainThor Wallet (Recommended)",
-      "Sync2 Wallet", 
-      "VeWorld Mobile Wallet",
-      "Hardware wallets (Ledger)"
+      "MetaMask & WalletConnect",
+      "Coinbase Wallet",
+      "Rainbow Wallet",
+      "Phantom (for Solana)"
     ]
   },
   {
-    number: "02", 
+    number: "02",
     title: "Explore the Interface",
     description: "Familiarize yourself with the AI-powered chat interface",
     icon: MessageSquare,
     details: [
       "Natural language queries",
-      "Real-time blockchain data",
-      "Smart contract interactions",
+      "Real-time multi-chain data",
+      "Cross-chain operations",
       "Transaction analysis"
     ]
   },
   {
     number: "03",
     title: "Start Querying",
-    description: "Begin exploring VeChain data with simple questions",
+    description: "Begin exploring blockchain data with simple questions across 15+ chains",
     icon: Search,
     details: [
-      "Ask about account balances",
-      "Analyze transaction history", 
-      "Explore smart contracts",
-      "Monitor network activity"
+      "Ask about token balances",
+      "Analyze transaction history",
+      "Track NFT portfolios",
+      "Monitor gas prices"
     ]
   }
 ];
 
 const features = [
   {
-    title: "Blockchain Analytics",
-    description: "Get real-time insights into VeChain transactions, blocks, and network statistics"
-  },
-  {
-    title: "Smart Contract Tools", 
-    description: "Verify contracts, analyze code, and interact with deployed contracts"
+    title: "Multi-Chain Analytics",
+    description: "Get real-time insights across Ethereum, Base, Arbitrum, Optimism, Polygon, Solana, and more"
   },
   {
     title: "AI-Powered Queries",
-    description: "Ask questions in natural language and get intelligent blockchain insights"
+    description: "Ask questions in natural language powered by ADK-TS agents for intelligent blockchain insights"
   },
   {
-    title: "Token Management",
-    description: "Track VET and VTHO balances, transfers, and token interactions"
+    title: "Token & NFT Management",
+    description: "Track ERC20 tokens, NFTs, and Solana tokens across all supported chains"
+  },
+  {
+    title: "DeFi Operations",
+    description: "Get swap quotes, track liquidity pools, and monitor DeFi protocols across chains"
   }
 ];
 
@@ -86,10 +87,11 @@ export default function GettingStartedPage() {
         <Badge variant="outline" className="mb-4">
           <span className="text-muted-foreground">Getting Started</span>
         </Badge>
-        
+
         <h1 className="text-4xl font-bold mb-4">Welcome to ChainPilot</h1>
         <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl">
-          ChainPilot is your AI-powered co-pilot for the VeChain blockchain. 
+          ChainPilot is your AI-powered co-pilot for multi-chain blockchain operations.
+          Built with ADK-TS, it provides conversational access to 15+ blockchains.
           This guide will help you get started in just a few minutes.
         </p>
       </motion.div>
@@ -103,7 +105,7 @@ export default function GettingStartedPage() {
         className="mb-16"
       >
         <h2 className="text-3xl font-bold mb-8">Quick Start Guide</h2>
-        
+
         <div className="space-y-8">
           {steps.map((step, index) => {
             const Icon = step.icon;
@@ -121,17 +123,17 @@ export default function GettingStartedPage() {
                     {step.number}
                   </div>
                 </div>
-                
+
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
                     <Icon className="h-6 w-6 text-primary" />
                     <h3 className="text-xl font-semibold">{step.title}</h3>
                   </div>
-                  
+
                   <p className="text-muted-foreground mb-4 leading-relaxed">
                     {step.description}
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {step.details.map((detail, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm">
@@ -152,7 +154,7 @@ export default function GettingStartedPage() {
             Ready to start?
           </h4>
           <p className="text-muted-foreground mb-4">
-            Launch ChainPilot and connect your wallet to begin exploring the VeChain ecosystem.
+            Launch ChainPilot and connect your wallet to begin exploring across 15+ blockchains.
           </p>
           <Button asChild>
             <Link href="/chat">
@@ -172,7 +174,7 @@ export default function GettingStartedPage() {
         className="mb-16"
       >
         <h2 className="text-3xl font-bold mb-8">Key Features</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature, index) => (
             <motion.div
@@ -192,7 +194,7 @@ export default function GettingStartedPage() {
         </div>
       </motion.section>
 
-      {/* Example Queries */}
+      {/* Supported Chains */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -200,18 +202,65 @@ export default function GettingStartedPage() {
         viewport={{ once: true }}
         className="mb-16"
       >
+        <h2 className="text-3xl font-bold mb-8">Supported Chains</h2>
+        <p className="text-muted-foreground mb-8 leading-relaxed">
+          ChainPilot supports 15+ blockchains through Alchemy's multi-chain infrastructure and Jupiter Ultra for Solana:
+        </p>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[
+            "Ethereum",
+            "Base",
+            "Arbitrum",
+            "Optimism",
+            "Polygon",
+            "Polygon zkEVM",
+            "zkSync",
+            "Scroll",
+            "Blast",
+            "Linea",
+            "Avalanche",
+            "BNB Chain",
+            "Fantom",
+            "Solana",
+            "+ more"
+          ].map((chain, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.05 * index }}
+              viewport={{ once: true }}
+              className="p-4 border rounded-lg bg-card/30 backdrop-blur-sm text-center font-medium"
+            >
+              {chain}
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Example Queries */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        viewport={{ once: true }}
+        className="mb-16"
+      >
         <h2 className="text-3xl font-bold mb-8">Example Queries</h2>
         <p className="text-muted-foreground mb-8 leading-relaxed">
           Here are some example questions you can ask ChainPilot:
         </p>
-        
+
         <div className="space-y-4">
           {[
-            "What's my VET balance?",
-            "Show me the latest transactions on VeChain",
-            "Analyze the smart contract at address 0x...",
-            "What's the current VTHO generation rate?",
-            "Find all transactions from my wallet in the last 7 days"
+            "What's my ETH balance on Base?",
+            "Show me my NFTs across all chains",
+            "What's the current gas price on Ethereum?",
+            "Get me a swap quote for 1 ETH to USDC on Arbitrum",
+            "Show my transaction history on Polygon",
+            "What's the price of SOL right now?",
+            "Track all my token balances across chains"
           ].map((query, index) => (
             <motion.div
               key={index}
@@ -232,7 +281,7 @@ export default function GettingStartedPage() {
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
         viewport={{ once: true }}
         className="bg-card/50 backdrop-blur-sm border rounded-2xl p-8"
       >
@@ -240,22 +289,31 @@ export default function GettingStartedPage() {
         <p className="text-muted-foreground mb-6 leading-relaxed">
           Now that you know the basics, explore these advanced topics:
         </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/docs/examples" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-            <Code className="h-5 w-5 text-primary" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link href="/docs/architecture" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+            <Layers className="h-5 w-5 text-primary" />
             <div>
-              <div className="font-medium">Code Examples</div>
-              <div className="text-sm text-muted-foreground">See real examples and tutorials</div>
+              <div className="font-medium">Architecture</div>
+              <div className="text-sm text-muted-foreground">Learn about ADK-TS integration</div>
             </div>
             <ArrowRight className="h-4 w-4 ml-auto" />
           </Link>
-          
+
           <Link href="/docs/api-reference" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
             <ExternalLink className="h-5 w-5 text-primary" />
             <div>
               <div className="font-medium">API Reference</div>
               <div className="text-sm text-muted-foreground">Complete API documentation</div>
+            </div>
+            <ArrowRight className="h-4 w-4 ml-auto" />
+          </Link>
+
+          <Link href="/docs/integration-guides" className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+            <Code className="h-5 w-5 text-primary" />
+            <div>
+              <div className="font-medium">Integration Guides</div>
+              <div className="text-sm text-muted-foreground">Integration tutorials</div>
             </div>
             <ArrowRight className="h-4 w-4 ml-auto" />
           </Link>

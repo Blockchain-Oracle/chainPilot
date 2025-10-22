@@ -3,6 +3,7 @@
 import { ArrowRight, Brain, Shield, Zap, Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +15,13 @@ export default function ChainPilotLanding() {
       <header className="vet-nav">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-vet-gradient flex items-center justify-center shadow-vet-glow">
-              <span className="text-white font-bold text-sm">C</span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="ChainPilot Logo"
+              width={32}
+              height={32}
+              className="object-contain"
+            />
             <span className="text-lg font-medium tracking-wide">ChainPilot</span>
           </Link>
           <div className="flex items-center gap-6 text-sm text-vet-text-secondary">
@@ -44,9 +49,18 @@ export default function ChainPilotLanding() {
           transition={{ duration: 0.8 }}
           className="max-w-4xl mx-auto"
         >
-          <Badge className="mb-6 bg-vet-accent/10 border-vet-accent/20 text-vet-accent hover:bg-vet-accent/20">
-            Powered by ADK & Alchemy Multi-Chain Infrastructure
-          </Badge>
+          <div className="flex justify-center mb-6">
+            <Badge className="bg-vet-accent/10 border-vet-accent/20 text-vet-accent hover:bg-vet-accent/20 flex items-center gap-2 px-4 py-2">
+              <Image
+                src="/adk.webp"
+                alt="ADK"
+                width={20}
+                height={20}
+                className="object-contain"
+              />
+              Powered by ADK & Alchemy Multi-Chain Infrastructure
+            </Badge>
+          </div>
 
           <h1 className="vet-heading mb-6">
             AI Agents that <span className="text-vet-accent">Act</span>, not just chat.
@@ -208,9 +222,13 @@ export default function ChainPilotLanding() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div className="col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-vet-gradient flex items-center justify-center shadow-vet-glow">
-                  <span className="text-white font-bold text-sm">C</span>
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="ChainPilot Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
                 <span className="text-lg font-medium">ChainPilot</span>
               </div>
               <p className="vet-caption max-w-md">

@@ -49,7 +49,7 @@ export const tokenMetadataTool = createTool({
           symbol: metadata.symbol || 'UNKNOWN',
           decimals: metadata.decimals || 18,
           logo: metadata.logo,
-          totalSupply: metadata.totalSupply,
+          totalSupply: (metadata as any).totalSupply || null,
         },
       };
 

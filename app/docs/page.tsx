@@ -22,11 +22,11 @@ const quickStart = [
   {
     step: "1",
     title: "Connect Your Wallet",
-    description: "Connect your VeChain wallet to start using the terminal",
+    description: "Connect your multi-chain wallet to start using ChainPilot",
     href: "/docs/getting-started"
   },
   {
-    step: "2", 
+    step: "2",
     title: "Explore the Interface",
     description: "Learn about the AI chat interface and available tools",
     href: "/docs/getting-started"
@@ -34,8 +34,8 @@ const quickStart = [
   {
     step: "3",
     title: "Start Querying",
-    description: "Begin analyzing blockchain data with natural language",
-    href: "/docs/examples"
+    description: "Begin managing blockchain data across EVM chains and Solana",
+    href: "/docs/api-reference"
   }
 ];
 
@@ -48,46 +48,46 @@ const featuredSections = [
     badge: "Popular"
   },
   {
-    name: "API Reference",
-    href: "/docs/api-reference", 
-    icon: FileText,
-    description: "Complete documentation for all available APIs, endpoints, and data models.",
+    name: "Architecture",
+    href: "/docs/architecture",
+    icon: Building2,
+    description: "Learn how ChainPilot is built with ADK-TS for stateful AI agents.",
     badge: "Essential"
   },
   {
-    name: "Examples",
-    href: "/docs/examples",
-    icon: Code,
-    description: "Real-world examples and code snippets to help you build faster.",
+    name: "API Reference",
+    href: "/docs/api-reference",
+    icon: FileText,
+    description: "Complete documentation for multi-chain APIs across EVM and Solana.",
     badge: "Helpful"
   },
   {
-    name: "MCP Server",
-    href: "/docs/mcp-server",
-    icon: Server,
-    description: "Set up and configure the Model Context Protocol server for advanced integrations.",
+    name: "Integration Guides",
+    href: "/docs/integration-guides",
+    icon: Puzzle,
+    description: "Step-by-step guides for integrating ChainPilot into your applications.",
     badge: "Advanced"
   }
 ];
 
 const allSections = [
   {
-    name: "Architecture",
-    href: "/docs/architecture",
-    icon: Building2,
-    description: "Deep dive into system design and technical architecture"
-  },
-  {
-    name: "Integration Guides", 
-    href: "/docs/integration-guides",
-    icon: Puzzle,
-    description: "Step-by-step guides for integrating ChainPilot"
-  },
-  {
     name: "FAQ",
     href: "/docs/faq",
     icon: HelpCircle,
     description: "Common questions and troubleshooting tips"
+  },
+  {
+    name: "API Reference",
+    href: "/docs/api-reference",
+    icon: FileText,
+    description: "Complete multi-chain API documentation"
+  },
+  {
+    name: "Integration Guides",
+    href: "/docs/integration-guides",
+    icon: Puzzle,
+    description: "Step-by-step integration guides"
   }
 ];
 

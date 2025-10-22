@@ -27,16 +27,6 @@ interface TransferCardProps {
 }
 
 export function TransferCard({ result }: TransferCardProps) {
-  // Handle both transaction and data formats
-  const transferData = result.transaction || result.data;
-
-  if (!transferData) {
-    console.error('[TransferCard] No transfer data available:', result);
-    return null; // CardWrapper will handle displaying error
-  }
-
-  // Extract data from transferData
-  const { from, to, amount, value, chainId, gasEstimate, gasPrice, toEnsName } = transferData;
   const [error, setError] = useState<string | null>(null);
 
   // Wagmi hook for sending transactions
@@ -55,6 +45,17 @@ export function TransferCard({ result }: TransferCardProps) {
   } = useWaitForTransactionReceipt({
     hash,
   });
+
+  // Handle both transaction and data formats
+  const transferData = result.transaction || result.data;
+
+  if (!transferData) {
+    console.error('[TransferCard] No transfer data available:', result);
+    return null; // CardWrapper will handle displaying error
+  }
+
+  // Extract data from transferData
+  const { from, to, amount, value, chainId, gasEstimate, gasPrice, toEnsName } = transferData;
 
   const handleSend = () => {
     setError(null);

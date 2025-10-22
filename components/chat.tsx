@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { ChatHeader } from "@/components/chat-header";
-import { generateUUID } from "@/lib/utils";
+import { generateUUID, convertADKToUIMessages } from "@/lib/utils";
 import { MultimodalInput } from "./multimodal-input";
 import { Messages } from "./messages";
 import type { VisibilityType } from "./visibility-selector";
@@ -98,7 +98,7 @@ export function Chat({
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
   // Custom send message function to match the expected interface
-  const sendMessage = (message: ChatMessage) => {
+  const sendMessage = (message: any) => {
     append(message);
   };
 
@@ -122,7 +122,7 @@ export function Chat({
         <Messages
           chatId={id}
           status={isLoading ? "pending" : "idle"}
-          messages={messages}
+          messages={convertADKToUIMessages(messages)}
           setMessages={setMessages}
           regenerate={regenerate}
           isReadonly={isReadonly}
