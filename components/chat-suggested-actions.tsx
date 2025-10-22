@@ -11,7 +11,8 @@ import {
   Zap,
   Search,
   ArrowLeftRight,
-  ChevronRight,
+  Send,
+  LineChart,
 } from "lucide-react";
 
 interface ChatSuggestedActionsProps {
@@ -34,34 +35,34 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
 
   const categories: ToolCategory[] = [
     {
-      name: "Balance & Wallet",
+      name: "Balance & Account",
       icon: <Wallet className="w-4 h-4" />,
       accent: "#E2008C", // ChainPilot Pink
       actions: [
         {
           title: "Check ETH balance",
-          label: "view wallet balance",
+          label: "native balance lookup",
           action: "Check my ETH balance on Ethereum",
         },
         {
-          title: "Token balances on Base",
-          label: "all tokens on Base chain",
+          title: "Token balances",
+          label: "ERC20 token holdings",
           action: "Show my token balances on Base",
         },
         {
-          title: "Balance on Polygon",
-          label: "check Polygon wallet",
-          action: "What's my wallet balance on Polygon?",
-        },
-        {
-          title: "Multi-chain balances",
-          label: "all chains at once",
-          action: "Check my ETH balance on all chains",
-        },
-        {
           title: "Transaction history",
-          label: "recent transactions",
+          label: "recent on-chain activity",
           action: "Show my recent transaction history on Ethereum",
+        },
+        {
+          title: "Multi-chain balance",
+          label: "balance across all chains",
+          action: "Check my balance on all supported chains",
+        },
+        {
+          title: "USDC balance",
+          label: "stablecoin holdings",
+          action: "What's my USDC balance on Polygon?",
         },
       ],
     },
@@ -71,29 +72,34 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
       accent: "#9945FF", // Purple
       actions: [
         {
-          title: "My NFTs on Base",
-          label: "Base chain NFT collection",
+          title: "My NFTs",
+          label: "owned NFT collections",
           action: "Show my NFTs on Base",
-        },
-        {
-          title: "Ethereum NFTs",
-          label: "mainnet NFT holdings",
-          action: "What NFTs do I own on Ethereum?",
-        },
-        {
-          title: "All chain NFTs",
-          label: "multi-chain NFT portfolio",
-          action: "Show my NFT collections across all chains",
         },
         {
           title: "NFT metadata",
           label: "detailed NFT information",
-          action: "Get my NFT metadata on Polygon",
+          action: "Get metadata for my NFTs on Ethereum",
         },
         {
-          title: "NFT floor prices",
+          title: "Floor price lookup",
           label: "collection floor stats",
-          action: "What's the floor price of popular NFT collections?",
+          action: "What's the floor price of this NFT collection?",
+        },
+        {
+          title: "Collections owned",
+          label: "group NFTs by collection",
+          action: "Show all my NFT collections",
+        },
+        {
+          title: "NFT owners",
+          label: "who owns this NFT",
+          action: "Show me owners for a specific NFT",
+        },
+        {
+          title: "Contract metadata",
+          label: "NFT contract details",
+          action: "Get contract metadata for an NFT collection",
         },
       ],
     },
@@ -103,125 +109,130 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
       accent: "#00D4FF", // Cyan
       actions: [
         {
-          title: "Bitcoin research",
-          label: "BTC fundamentals & tokenomics",
-          action: "Research Bitcoin tokenomics",
+          title: "Research Bitcoin",
+          label: "comprehensive token analysis",
+          action: "Research Bitcoin tokenomics and fundamentals",
         },
         {
-          title: "USDC price",
-          label: "stablecoin pricing",
-          action: "What is the price of USDC?",
+          title: "Token safety check",
+          label: "Solana token security",
+          action: "Research SOL token safety metrics",
         },
         {
-          title: "Ethereum overview",
-          label: "ETH token details",
-          action: "Tell me about Ethereum",
+          title: "Create research plan",
+          label: "structured analysis",
+          action: "Create a research plan for analyzing a new token",
         },
         {
-          title: "Solana safety check",
-          label: "SOL security analysis",
-          action: "Research SOL token safety",
+          title: "Web3 search",
+          label: "crypto information lookup",
+          action: "Search for information about Ethereum staking",
         },
         {
-          title: "Token price lookup",
-          label: "real-time pricing",
-          action: "What's the current price of LINK token?",
+          title: "Token price",
+          label: "current market price",
+          action: "What is the price of LINK token?",
         },
       ],
     },
     {
-      name: "Swaps & DEX",
-      icon: <ArrowLeftRight className="w-4 h-4" />,
+      name: "Solana & Jupiter",
+      icon: <LineChart className="w-4 h-4" />,
       accent: "#14F195", // Green
       actions: [
         {
-          title: "ETH to USDC swap",
-          label: "get swap quote",
-          action: "How much would it cost to swap 1 ETH to USDC?",
-        },
-        {
-          title: "Gas prices",
-          label: "network fee estimates",
-          action: "What are the current gas prices?",
+          title: "Search Solana tokens",
+          label: "token discovery & metrics",
+          action: "Search for BONK token on Solana",
         },
         {
           title: "Swap quote",
-          label: "token exchange pricing",
-          action: "Get a swap quote for 100 USDC to ETH",
-        },
-        {
-          title: "Best swap route",
-          label: "optimal DEX routing",
-          action: "What's the best route to swap tokens on Ethereum?",
-        },
-        {
-          title: "Solana swap quote",
           label: "Jupiter DEX pricing",
-          action: "Get swap quote for 10 SOL to USDC on Solana",
+          action: "Get swap quote for 10 SOL to USDC",
+        },
+        {
+          title: "Token safety",
+          label: "security analysis",
+          action: "Check safety metrics for a Solana token",
+        },
+        {
+          title: "DEX routers",
+          label: "available swap routers",
+          action: "Show available Jupiter routers",
+        },
+        {
+          title: "DBC pool info",
+          label: "liquidity pool data",
+          action: "Get DBC pool information for token pair",
         },
       ],
     },
     {
-      name: "DeFi & Markets",
-      icon: <TrendingUp className="w-4 h-4" />,
+      name: "Transactions & Gas",
+      icon: <Send className="w-4 h-4" />,
       accent: "#F7931A", // Bitcoin Orange
       actions: [
         {
-          title: "NFT floor prices",
-          label: "collection floor stats",
-          action: "What's the floor price of Bored Apes?",
+          title: "Gas prices",
+          label: "network fee estimates",
+          action: "What are the current gas prices on Ethereum?",
         },
         {
-          title: "Trending tokens",
-          label: "hot tokens on Ethereum",
-          action: "Show me trending tokens on Ethereum",
+          title: "Estimate gas",
+          label: "transaction cost",
+          action: "Estimate gas for a transaction",
         },
         {
-          title: "Multi-chain gas",
-          label: "gas across all chains",
-          action: "Get real-time gas prices across chains",
+          title: "Prepare ETH transfer",
+          label: "native token send",
+          action: "Prepare to send 0.1 ETH",
         },
         {
-          title: "DEX routes",
-          label: "best swap paths",
-          action: "What are the best DEX swap routes?",
+          title: "Token transfer",
+          label: "ERC20 token send",
+          action: "Prepare to transfer 100 USDC",
         },
         {
-          title: "Token prices",
-          label: "market pricing",
-          action: "Show me current token prices across chains",
+          title: "Token approval",
+          label: "approve DEX spending",
+          action: "Prepare token approval for Uniswap",
+        },
+        {
+          title: "Contract call",
+          label: "smart contract interaction",
+          action: "Prepare a contract call transaction",
         },
       ],
     },
     {
-      name: "Smart Contracts",
-      icon: <Code2 className="w-4 h-4" />,
+      name: "Tokens & Prices",
+      icon: <Coins className="w-4 h-4" />,
       accent: "#8B5CF6", // Purple
       actions: [
         {
-          title: "Read contract",
-          label: "call read-only function",
-          action: "Read a smart contract function",
+          title: "Token metadata",
+          label: "name, symbol, decimals",
+          action: "Get metadata for USDT token",
         },
         {
-          title: "Contract info",
-          label: "get contract details",
-          action: "Get contract information",
+          title: "Token price",
+          label: "USD price lookup",
+          action: "What's the current price of UNI token?",
         },
         {
-          title: "Contract events",
-          label: "view contract logs",
-          action: "Show me contract events",
+          title: "Price by address",
+          label: "contract address pricing",
+          action: "Get price for token at contract address",
         },
         {
-          title: "Verify address",
-          label: "check contract address",
-          action: "Verify a contract address",
+          title: "ENS resolution",
+          label: "resolve ENS to address",
+          action: "Resolve vitalik.eth to wallet address",
         },
         {
-          title: "Prepare transaction",
-          label: "build contract call",
-          action: "Prepare a smart contract transaction",
+          title: "Multi-chain pricing",
+          label: "prices across chains",
+          action: "Compare USDC price on different chains",
         },
       ],
     },
@@ -308,7 +319,7 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
                       <span className="font-semibold text-[#E0E0E0] text-sm sm:text-base leading-tight break-words">
                         {suggestedAction.title}
                       </span>
-                      <ChevronRight
+                      <ArrowLeftRight
                         className="w-4 h-4 sm:w-5 sm:h-5 text-vet-accent opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
                       />
                     </div>
@@ -340,8 +351,7 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
       >
         <Zap className="w-3 h-3 text-vet-accent flex-shrink-0" />
         <span className="text-center break-words">
-          {categories.reduce((sum, cat) => sum + cat.actions.length, 0)}+ AI-powered operations
-          across {categories.length} categories • 15+ chains supported
+          30+ AI-powered operations • {categories.length} categories • EVM + Solana chains
         </span>
       </motion.div>
     </div>
