@@ -7,7 +7,7 @@
 
   <p>A minimal, intelligent terminal for on-chain actions, insights, and execution — designed for professionals building the next wave of agentic finance.</p>
 
-  [![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-brightgreen)](https://chainpilot.vercel.app)
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-brightgreen)](https://chainpilot-adk.vercel.app)
   [![ADK-TS](https://img.shields.io/badge/Built%20with-ADK--TS-blue)](https://adk.iqai.com/)
   [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -410,7 +410,7 @@ pnpm lint             # Run ESLint
 
 ## Live Demo
 
-**Experience ChainPilot**: [https://chainpilot.vercel.app](https://chainpilot.vercel.app)
+**Experience ChainPilot**: [https://chainpilot-adk.vercel.app](https://chainpilot-adk.vercel.app)
 
 ### Demo Features
 
@@ -450,10 +450,10 @@ This project demonstrates innovative integration of AI agents with blockchain sy
 
 ## Documentation
 
-- [API Reference](./app/docs/api-reference/page.tsx)
-- [Architecture Overview](./app/docs/architecture/page.tsx)
-- [Getting Started Guide](./app/docs/getting-started/page.tsx)
-- [Integration Examples](./app/docs/examples/page.tsx)
+- [Getting Started Guide](https://chainpilot-adk.vercel.app/docs/getting-started)
+- [Architecture Overview](https://chainpilot-adk.vercel.app/docs/architecture)
+- [FAQ](https://chainpilot-adk.vercel.app/docs/faq)
+- [Live Demo](https://chainpilot-adk.vercel.app)
 
 ---
 
