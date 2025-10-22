@@ -15,24 +15,23 @@ import { shortenAddress } from '@/lib/utils/validation';
 import { TokenLogo } from '@/components/ui/optimized-image';
 
 interface TokenMetadataCardProps {
-  contractAddress: string;
-  chainId: number;
-  name: string;
-  symbol: string;
-  decimals: number;
-  logo?: string;
-  totalSupply?: string;
+  result: {
+    success: boolean;
+    data: {
+      contractAddress: string;
+      chainId: number;
+      name: string;
+      symbol: string;
+      decimals: number;
+      logo?: string;
+      totalSupply?: string;
+    };
+  };
 }
 
-export function TokenMetadataCard({
-  contractAddress,
-  chainId,
-  name,
-  symbol,
-  decimals,
-  logo,
-  totalSupply,
-}: TokenMetadataCardProps) {
+export function TokenMetadataCard({ result }: TokenMetadataCardProps) {
+  // Extract data from result
+  const { contractAddress, chainId, name, symbol, decimals, logo, totalSupply } = result.data;
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = async () => {

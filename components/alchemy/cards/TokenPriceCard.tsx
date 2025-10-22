@@ -12,20 +12,24 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, DollarSign } from 'lucide-react';
 
 interface TokenPriceCardProps {
-  symbol: string;
-  price: number;
-  change24h: number;
-  formattedPrice: string;
-  priceChange: 'up' | 'down' | 'stable';
+  result: {
+    success: boolean;
+    data: {
+      symbol: string;
+      price: string | number;
+      change24h: number;
+      formattedPrice: string;
+      priceChange: 'up' | 'down' | 'stable';
+    };
+  };
 }
 
-export function TokenPriceCard({
-  symbol,
-  price,
-  change24h,
-  formattedPrice,
-  priceChange,
-}: TokenPriceCardProps) {
+export function TokenPriceCard({ result }: TokenPriceCardProps) {
+  // Extract data from result
+  const { symbol, price: priceRaw, change24h, formattedPrice, priceChange } = result.data;
+
+  // Convert price to number if it's a string
+  const price = typeof priceRaw === 'string' ? parseFloat(priceRaw) : priceRaw;
   const isPositive = change24h > 0;
   const isNegative = change24h < 0;
   const isNeutral = change24h === 0;

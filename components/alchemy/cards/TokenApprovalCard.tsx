@@ -18,23 +18,30 @@ import { Badge } from '@/components/ui/badge';
 import { shortenAddress, formatEth } from '@/lib/utils/validation';
 import { Loader2, CheckCircle2, XCircle, ExternalLink, AlertTriangle, Shield } from 'lucide-react';
 
-interface TokenApprovalCardProps extends TokenApprovalProps {}
+interface TokenApprovalCardProps {
+  result: {
+    success: boolean;
+    data: TokenApprovalProps;
+  };
+}
 
-export function TokenApprovalCard({
-  from,
-  tokenAddress,
-  tokenSymbol,
-  tokenDecimals,
-  spender,
-  spenderName,
-  amount,
-  amountWei,
-  data,
-  chainId,
-  gasEstimate,
-  gasPrice,
-  isUnlimited,
-}: TokenApprovalCardProps) {
+export function TokenApprovalCard({ result }: TokenApprovalCardProps) {
+  // Extract data from result
+  const {
+    from,
+    tokenAddress,
+    tokenSymbol,
+    tokenDecimals,
+    spender,
+    spenderName,
+    amount,
+    amountWei,
+    data,
+    chainId,
+    gasEstimate,
+    gasPrice,
+    isUnlimited,
+  } = result.data;
   const [error, setError] = useState<string | null>(null);
 
   // Wagmi hook for writing contract

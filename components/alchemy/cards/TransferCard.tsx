@@ -17,18 +17,16 @@ import { Badge } from '@/components/ui/badge';
 import { shortenAddress, formatEth } from '@/lib/utils/validation';
 import { Loader2, CheckCircle2, XCircle, ExternalLink, AlertTriangle } from 'lucide-react';
 
-interface TransferCardProps extends EthTransferProps {}
+interface TransferCardProps {
+  result: {
+    success: boolean;
+    data: EthTransferProps;
+  };
+}
 
-export function TransferCard({
-  from,
-  to,
-  amount,
-  value,
-  chainId,
-  gasEstimate,
-  gasPrice,
-  toEnsName,
-}: TransferCardProps) {
+export function TransferCard({ result }: TransferCardProps) {
+  // Extract data from result
+  const { from, to, amount, value, chainId, gasEstimate, gasPrice, toEnsName } = result.data;
   const [error, setError] = useState<string | null>(null);
 
   // Wagmi hook for sending transactions

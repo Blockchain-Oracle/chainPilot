@@ -15,22 +15,22 @@ import { shortenAddress } from '@/lib/utils/validation';
 import { Button } from '@/components/ui/button';
 
 interface BalanceCardProps {
-  address: string;
-  balance: string;
-  symbol: string;
-  chain: string;
-  chainId: number;
-  formatted: string;
+  result: {
+    success: boolean;
+    data: {
+      address: string;
+      balance: string;
+      symbol: string;
+      chain: string;
+      chainId: number;
+      formatted: string;
+    };
+  };
 }
 
-export function BalanceCard({
-  address,
-  balance,
-  symbol,
-  chain,
-  chainId,
-  formatted,
-}: BalanceCardProps) {
+export function BalanceCard({ result }: BalanceCardProps) {
+  // Extract data from result
+  const { address, balance, symbol, chain, chainId, formatted } = result.data;
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = async () => {

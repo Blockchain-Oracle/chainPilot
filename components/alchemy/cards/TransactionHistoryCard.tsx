@@ -37,18 +37,20 @@ interface Transaction {
 }
 
 interface TransactionHistoryCardProps {
-  address: string;
-  chainId: number;
-  count: number;
-  transactions: Transaction[];
+  result: {
+    success: boolean;
+    data: {
+      address: string;
+      chainId: number;
+      count: number;
+      transactions: Transaction[];
+    };
+  };
 }
 
-export function TransactionHistoryCard({
-  address,
-  chainId,
-  count,
-  transactions,
-}: TransactionHistoryCardProps) {
+export function TransactionHistoryCard({ result }: TransactionHistoryCardProps) {
+  // Extract data from result
+  const { address, chainId, count, transactions } = result.data;
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
 
   const getChainName = (chainId: number): string => {

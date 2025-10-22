@@ -1,12 +1,10 @@
-import { AgentBuilder } from "@iqai/adk";
+import { AgentBuilder, StreamingMode, RunConfig } from "@iqai/adk";
 import { getAlchemyTools } from "@/lib/adk/tools";
+import { getModelConfig } from "@/lib/ai/model-config";
 import { getRedisSessionService } from "@/lib/adk/redis-session";
 import { NextRequest } from "next/server";
 import {
-  createStreamId,
-  deleteChatById,
   getChatById,
-  getMessageCountByUserId,
   getMessagesByChatId,
   saveChat,
   saveMessages,
@@ -15,8 +13,6 @@ import { generateUUID } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "./actions";
 import { ChatSDKError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
-import type { ChatModel } from "@/lib/ai/models";
-import type { VisibilityType } from "@/components/visibility-selector";
 
 // Force Node.js runtime (required for Alchemy SDK)
 export const runtime = 'nodejs';
@@ -25,31 +21,19 @@ export const maxDuration = 60;
 export async function POST(request: NextRequest) {
   try {
     const requestBody = await request.json();
-    console.log('[API] POST /api/chat - Request received:', {
-      hasId: !!requestBody.id,
-      hasMessage: !!requestBody.message,
-      messageId: requestBody.message?.id,
-    });
+    console.log('[API] POST /api/chat - Request received');
 
     const {
       id,
       message,
       selectedChatModel,
-      selectedVisibilityType,
       walletAddress: bodyWalletAddress,
     }: {
       id: string;
       message: ChatMessage;
-      selectedChatModel: string;
-      selectedVisibilityType: VisibilityType;
+      selectedChatModel?: string;
       walletAddress?: string;
     } = requestBody;
-
-    console.log('[API] Destructured request:', {
-      id,
-      messageId: message?.id,
-      walletAddress: bodyWalletAddress,
-    });
 
     // Get wallet address from request body or headers
     const walletAddress = bodyWalletAddress || request.headers.get('x-wallet-address');
@@ -74,74 +58,90 @@ export async function POST(request: NextRequest) {
       ).toResponse();
     }
 
-    const messageCount = await getMessageCountByUserId({
-      id: user.id,
-      differenceInHours: 24,
-    });
-
+    // Get or create chat
     const chat = await getChatById({ id });
 
     if (!chat) {
       console.log('[API] Creating new chat:', { id, userId: user.id });
-      const title = await generateTitleFromUserMessage({
-        message,
+      
+      // Extract text content for title generation
+      const textContent = message.parts
+        .map((part: any) => {
+          if (typeof part === 'string') return part;
+          if (part.type === 'text' && part.text) return part.text;
+          if (part.content) return part.content;
+          return '';
+        })
+        .join(' ')
+        .trim();
+      
+      // Create a simple message object for title generation
+      const titleMessage = {
+        id: message.id,
+        role: message.role,
+        parts: [{ type: 'text', text: textContent }],
+        createdAt: new Date()
+      };
+      
+      const title = await generateTitleFromUserMessage({ 
+        message: titleMessage, 
+        selectedModel: selectedChatModel 
       });
 
       await saveChat({
         id,
         userId: user.id,
         title,
-        visibility: selectedVisibilityType,
+        visibility: 'private',
       });
-      console.log('[API] Chat created successfully:', { id, title });
     } else {
-      console.log('[API] Using existing chat:', { id, userId: chat.userId });
       if (chat.userId !== user.id) {
-        console.error('[API] Forbidden: Chat user mismatch', {
-          chatUserId: chat.userId,
-          requestUserId: user.id
-        });
         return new ChatSDKError("forbidden:chat").toResponse();
       }
     }
 
-    const messagesFromDb = await getMessagesByChatId({ id });
+    // Get the message content
+    const userMessage = message.parts
+      .map((part: any) => {
+        if (typeof part === 'string') return part;
+        if (part.type === 'text') return part.text || part.content || '';
+        return '';
+      })
+      .join(' ');
 
-    console.log('[API] Preparing to save user message:', {
-      chatId: id,
-      messageId: message.id,
-      messageIdType: typeof message.id,
-      messageIdDefined: message.id !== undefined,
-      messageStructure: message,
-      partsBeforeStringify: message.parts,
-      partsType: typeof message.parts,
-    });
-
-    // Save user message
-    const messageToSave = {
-      chatId: id,
-      id: message.id,
-      role: "user",
-      parts: JSON.stringify(message.parts),
-      attachments: JSON.stringify([]),
-      createdAt: new Date(),
-    };
-
-    console.log('[API] Message prepared for DB:', messageToSave);
-
+    // Save user message to DB
     await saveMessages({
-      messages: [messageToSave],
+      messages: [{
+        chatId: id,
+        id: message.id,
+        role: "user",
+        parts: JSON.stringify(message.parts),
+        attachments: JSON.stringify([]),
+        createdAt: new Date(),
+      }],
     });
 
-    console.log('[API] User message saved successfully');
+    console.log('[API] User message saved');
+
+    // Get model configuration
+    const modelConfig = getModelConfig(selectedChatModel);
+    console.log('[API] Using model:', modelConfig.model);
 
     // Get ADK tools
     const tools = await getAlchemyTools();
 
-    const agentBuilder = AgentBuilder.create("alchemy_assistant")
-      .withModel("gemini-2.0-flash-exp")
+    // Get Redis session service (falls back to in-memory if not configured)
+    // CRITICAL FIX: Await the session service initialization
+    const sessionService = await getRedisSessionService({
+      ttl: 24 * 60 * 60, // 24 hours
+      prefix: `chat:${id}:`,
+    });
+
+    // Build agent with proper ADK pattern and session management
+    let builder = AgentBuilder.create("chainpilot")
+      .withModel(modelConfig.model)
       .withDescription("Multi-chain blockchain assistant powered by Alchemy")
-      .withInstruction(`You are Alchemy Terminal, an AI assistant for multi-chain blockchain interactions powered by Alchemy APIs.
+      .withInstruction(`You are ChainPilot, an AI assistant for multi-chain blockchain interactions powered by Alchemy APIs.
 
 **Current Date & Time:** ${new Date().toISOString()}
 
@@ -174,184 +174,141 @@ When users request blockchain operations:
 4. Wait for confirmation on transactions`)
       .withTools(...tools);
 
-    // DO NOT add session service - let ADK use default in-memory sessions
-    console.log('[API] Using in-memory sessions (no persistence)')
+    // Only add session service if Redis is configured
+    if (sessionService) {
+      builder = builder.withSessionService(sessionService);
+    }
 
-    console.log('[API] Building agent...');
-    const { runner, agent, session } = await agentBuilder.build();
-    console.log('[API] Agent built successfully:', {
-      agentName: agent.name,
-      hasRunner: !!runner,
-      sessionId: session?.id,
-      userId: session?.userId
+    builder = builder.withQuickSession({ sessionId: `chat-${id}`, userId: user.id, appName: "chainpilot" });
+
+    const { runner, session } = await builder.build();
+
+    console.log('[API] Agent built successfully with session:', {
+      sessionId: session.id,
+      userId: session.userId,
+      hasSessionService: !!sessionService
     });
 
-    // Create SSE stream for ADK events
+    // Create SSE stream from ADK events
+    console.log('[API] Starting ADK streaming with proper session management');
+
     const encoder = new TextEncoder();
-    const assistantMessageId = generateUUID();
-    let assistantContent = "";
-    let assistantToolCalls: any[] = [];
+    let assistantMessageId = generateUUID();
+    let assistantContent = '';
 
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          // ADK handles all streaming automatically with proper session management
+          const runConfig = new RunConfig();
+          runConfig.streamingMode = StreamingMode.SSE;
 
-          // Get the message content
-          const userMessage = message.parts
-            .map((part: any) => {
-              if (typeof part === 'string') return part;
-              if (part.type === 'text') return part.text || part.content || '';
-              return '';
-            })
-            .join(' ');
-
-          // Send initial message
-          controller.enqueue(encoder.encode(
-            `data: ${JSON.stringify({
-              type: "message-start",
-              messageId: assistantMessageId,
-              role: "assistant"
-            })}\n\n`
-          ));
-
-          // Process with ADK using the correct runAsync signature
-          console.log('[API] Starting ADK runner with message:', {
-            messageLength: userMessage.length,
-            chatId: id,
-            sessionId: session?.id,
-            userId: session?.userId
-          });
-
-          try {
-            // Correct ADK runAsync signature from docs:
-            // runAsync({ userId, sessionId, newMessage })
-            for await (const event of runner.runAsync({
-              userId: session.userId,
-              sessionId: session.id,
-              newMessage: {
-                parts: [{ text: userMessage }]
-              }
-            })) {
-              console.log('[API] Received event:', {
-                partial: event.partial?.substring(0, 50),
-                hasContent: !!event.content,
-                contentParts: event.content?.parts?.length || 0,
-                hasFunctionCalls: !!event.getFunctionCalls,
-                hasFunctionResponses: !!event.getFunctionResponses,
-              });
-
-            // Stream text deltas (for streaming mode)
-            if (event.partial) {
-              assistantContent += event.partial;
-              controller.enqueue(encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "text-delta",
-                  textDelta: event.partial
-                })}\n\n`
-              ));
-            }
-
-            // Extract text from event content (for non-streaming final response)
-            if (event.content?.parts) {
-              for (const part of event.content.parts) {
-                if (part.text) {
-                  assistantContent += part.text;
-                  controller.enqueue(encoder.encode(
-                    `data: ${JSON.stringify({
-                      type: "text-delta",
-                      textDelta: part.text
-                    })}\n\n`
-                  ));
-                }
-              }
-            }
-
-            // Stream tool calls
-            const functionCalls = event.getFunctionCalls ? event.getFunctionCalls() : null;
-            if (functionCalls && functionCalls.length > 0) {
-              for (const call of functionCalls) {
-                const toolCall = {
-                  toolName: call.name,
-                  args: call.args,
-                  toolCallId: call.id || crypto.randomUUID()
-                };
-                assistantToolCalls.push(toolCall);
-
-                controller.enqueue(encoder.encode(
-                  `data: ${JSON.stringify({
-                    type: "tool-call",
-                    ...toolCall
-                  })}\n\n`
-                ));
-              }
-            }
-
-            // Stream tool results
-            const functionResponses = event.getFunctionResponses ? event.getFunctionResponses() : null;
-            if (functionResponses && functionResponses.length > 0) {
-              for (const response of functionResponses) {
-                controller.enqueue(encoder.encode(
-                  `data: ${JSON.stringify({
-                    type: "tool-result",
-                    toolCallId: response.id,
-                    result: response.result
-                  })}\n\n`
-                ));
-              }
-            }
-            }
-            
-            console.log('[API] ADK runner completed successfully');
-          } catch (runError) {
-            console.error('[API] Error in ADK runner loop:', {
-              error: runError,
-              message: runError instanceof Error ? runError.message : String(runError),
-              stack: runError instanceof Error ? runError.stack : undefined,
+          for await (const event of runner.runAsync({
+            userId: user.id,
+            sessionId: session.id,
+            newMessage: { parts: [{ text: userMessage }] },
+            runConfig
+          })) {
+            console.log('[API] ADK Event:', {
+              partial: event.partial,
+              hasContent: !!event.content,
+              contentParts: event.content?.parts?.length,
+              firstPartType: event.content?.parts?.[0]?.text ? 'text' : 'other'
             });
-            throw runError;
+
+            // Handle text streaming (partial chunks)
+            if (event.partial && event.content?.parts?.[0]?.text) {
+              const textChunk = event.content.parts[0].text;
+              assistantContent += textChunk;
+
+              const sseData = {
+                type: 'text-delta',
+                id: assistantMessageId,
+                content: textChunk
+              };
+              console.log('[API] Sending SSE text-delta:', JSON.stringify(sseData));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`));
+            }
+
+            // Handle complete responses (non-streaming fallback)
+            // Only send if we haven't accumulated any content yet (meaning streaming didn't work)
+            if (!event.partial && event.content?.parts?.[0]?.text && assistantContent === '') {
+              const fullText = event.content.parts[0].text;
+              assistantContent += fullText;
+
+              const data = JSON.stringify({
+                type: 'text-delta',
+                id: assistantMessageId,
+                content: fullText
+              });
+              controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+            }
+
+            // Handle tool calls
+            const toolCalls = event.getFunctionCalls?.();
+            if (toolCalls && toolCalls.length > 0) {
+              for (const toolCall of toolCalls) {
+                const data = JSON.stringify({
+                  type: 'tool-call',
+                  toolCallId: toolCall.id,
+                  toolName: toolCall.name,
+                  args: toolCall.args
+                });
+                controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+              }
+            }
+
+            // Handle tool results
+            const toolResults = event.getFunctionResponses?.();
+            if (toolResults && toolResults.length > 0) {
+              for (const result of toolResults) {
+                console.log('[API] Tool result received:', {
+                  toolCallId: result.id,
+                  toolName: result.name,
+                  responseType: typeof result.response,
+                  responseKeys: result.response ? Object.keys(result.response) : [],
+                  response: result.response
+                });
+
+                const sseData = {
+                  type: 'tool-result',
+                  toolCallId: result.id,
+                  toolName: result.name,
+                  result: result.response
+                };
+                console.log('[API] Sending SSE tool-result:', JSON.stringify(sseData).substring(0, 500));
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`));
+              }
+            }
           }
 
-          // Save assistant message
-          console.log('[API] Saving assistant message:', {
-            assistantMessageId,
-            contentLength: assistantContent.length,
-            chatId: id,
-          });
-          
-          await saveMessages({
-            messages: [
-              {
+          // Save assistant message to DB
+          if (assistantContent) {
+            await saveMessages({
+              messages: [{
+                chatId: id,
                 id: assistantMessageId,
                 role: "assistant",
-                parts: JSON.stringify([
-                  { type: "text", content: assistantContent }
-                ]),
+                parts: JSON.stringify([{ type: 'text', text: assistantContent }]),
                 attachments: JSON.stringify([]),
-                chatId: id,
                 createdAt: new Date(),
-              },
-            ],
-          });
-          
-          console.log('[API] Assistant message saved successfully');
+              }],
+            });
+          }
 
-          // Send completion signal
-          controller.enqueue(encoder.encode(
-            `data: ${JSON.stringify({
-              type: "finish",
-              finishReason: "stop",
-              messageId: assistantMessageId
-            })}\n\n`
-          ));
+          // Send finish event
+          const finishData = JSON.stringify({ type: 'finish' });
+          controller.enqueue(encoder.encode(`data: ${finishData}\n\n`));
+          controller.close();
+
+          console.log('[API] ADK streaming completed successfully');
         } catch (error: any) {
-          console.error("ADK Stream Error:", error);
-          controller.enqueue(encoder.encode(
-            `data: ${JSON.stringify({
-              type: "error",
-              error: error?.message || "Unknown error occurred"
-            })}\n\n`
-          ));
-        } finally {
+          console.error('[API] ADK streaming error:', error);
+          const errorData = JSON.stringify({
+            type: 'error',
+            error: error?.message || 'Streaming failed'
+          });
+          controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
           controller.close();
         }
       }
@@ -391,7 +348,6 @@ export async function DELETE(request: Request) {
   }
 
   try {
-    // Get user from wallet address
     const { authenticateWallet } = await import("@/lib/auth/wallet-auth");
     const user = await authenticateWallet(walletAddress);
 
@@ -405,6 +361,7 @@ export async function DELETE(request: Request) {
       return new ChatSDKError("forbidden:chat").toResponse();
     }
 
+    const { deleteChatById } = await import("@/lib/db/queries");
     const deletedChat = await deleteChatById({ id });
 
     return Response.json(deletedChat, { status: 200 });

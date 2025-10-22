@@ -29,25 +29,25 @@ interface TokenBalance {
 }
 
 interface TokenBalancesCardProps {
-  address: string;
-  chain: string;
-  chainId: number;
-  native: {
-    symbol: string;
-    balance: string;
+  result: {
+    success: boolean;
+    data: {
+      address: string;
+      chain: string;
+      chainId: number;
+      native: {
+        symbol: string;
+        balance: string;
+      };
+      tokens: TokenBalance[];
+      totalTokens: number;
+    };
   };
-  tokens: TokenBalance[];
-  totalTokens: number;
 }
 
-export function TokenBalancesCard({
-  address,
-  chain,
-  chainId,
-  native,
-  tokens,
-  totalTokens,
-}: TokenBalancesCardProps) {
+export function TokenBalancesCard({ result }: TokenBalancesCardProps) {
+  // Extract data from result
+  const { address, chain, chainId, native, tokens, totalTokens } = result.data;
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'symbol' | 'balance' | 'value'>('value');
 

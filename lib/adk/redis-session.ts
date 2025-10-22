@@ -89,9 +89,15 @@ export class RedisSessionService extends BaseSessionService {
     userId: string,
     sessionId?: string
   ): Promise<any | null> {
-    const id = sessionId || `${agentId}:${userId}`;
-    const session = await this.get(id);
-    
+    // CRITICAL FIX: Always use the exact sessionId when provided
+    // Don't generate a fallback ID, as it won't match the stored session
+    if (!sessionId) {
+      console.warn("⚠️  getSession called without sessionId");
+      return null;
+    }
+
+    const session = await this.get(sessionId);
+
     if (session) {
       // ✅ Ensure backward compatibility: Add missing required fields
       if (!session.events) session.events = [];
@@ -100,7 +106,7 @@ export class RedisSessionService extends BaseSessionService {
       if (!session.appName) session.appName = agentId;
       if (!session.lastUpdateTime) session.lastUpdateTime = Date.now();
     }
-    
+
     return session;
   }
 
@@ -385,9 +391,9 @@ export class RedisSessionService extends BaseSessionService {
  * Get Redis session service if configured, otherwise returns undefined
  * to use default in-memory session
  */
-export function getRedisSessionService(
+export async function getRedisSessionService(
   config: SessionConfig = {}
-): BaseSessionService | undefined {
+): Promise<BaseSessionService | undefined> {
   const redisUrl = process.env.REDIS_URL;
 
   if (!redisUrl) {
@@ -399,12 +405,10 @@ export function getRedisSessionService(
     console.log("🔗 Creating Redis session service...");
     const sessionService = new RedisSessionService(redisUrl, config);
 
-    // Connect to Redis asynchronously (don't await here to avoid blocking)
-    sessionService.connect().catch((error) => {
-      console.error("⚠️  Redis connection failed, falling back to in-memory session:", error);
-    });
+    // CRITICAL FIX: Await Redis connection before returning
+    await sessionService.connect();
 
-    console.log("✅ Redis session service created successfully");
+    console.log("✅ Redis session service created and connected successfully");
     return sessionService;
   } catch (error) {
     console.error("❌ Failed to create Redis session service:", error);

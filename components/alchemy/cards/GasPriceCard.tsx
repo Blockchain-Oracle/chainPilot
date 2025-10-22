@@ -18,22 +18,24 @@ interface GasPriceOption {
 }
 
 interface GasPriceCardProps {
-  chainId: number;
-  chain: string;
-  prices: {
-    slow: GasPriceOption;
-    standard: GasPriceOption;
-    fast: GasPriceOption;
+  result: {
+    success: boolean;
+    data: {
+      chainId: number;
+      chain: string;
+      prices: {
+        slow: GasPriceOption;
+        standard: GasPriceOption;
+        fast: GasPriceOption;
+      };
+      recommendation: string;
+    };
   };
-  recommendation: string;
 }
 
-export function GasPriceCard({
-  chainId,
-  chain,
-  prices,
-  recommendation,
-}: GasPriceCardProps) {
+export function GasPriceCard({ result }: GasPriceCardProps) {
+  // Extract data from result
+  const { chainId, chain, prices, recommendation } = result.data;
   const getChainName = (chainId: number): string => {
     const names: Record<number, string> = {
       1: 'Ethereum',

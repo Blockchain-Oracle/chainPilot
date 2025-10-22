@@ -33,20 +33,34 @@ interface Collection {
 }
 
 interface NftsOwnedCardProps {
-  address: string;
-  chainId: number;
-  totalNFTs: number;
-  collections: Collection[];
-  nfts: NFT[];
+  result: {
+    success: boolean;
+    data: {
+      address: string;
+      chainId: number;
+      totalNFTs: number;
+      collections: Collection[];
+      nfts: NFT[];
+    };
+  };
 }
 
-export function NftsOwnedCard({
-  address,
-  chainId,
-  totalNFTs,
-  collections,
-  nfts,
-}: NftsOwnedCardProps) {
+export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
+  // Handle undefined or error results
+  if (!result || !result.success || !result.data) {
+    return (
+      <Card className="border-destructive/20 bg-card/50 backdrop-blur">
+        <CardHeader>
+          <CardTitle className="text-lg text-destructive">NFT Query Failed</CardTitle>
+          <CardDescription>
+            {result?.error || 'Failed to fetch NFTs'}
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  const { address, chainId, totalNFTs, collections = [], nfts = [] } = result.data;
   const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
 
   const toggleCollection = (collectionName: string) => {

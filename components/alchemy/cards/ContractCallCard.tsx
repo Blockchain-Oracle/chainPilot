@@ -17,20 +17,27 @@ import { Badge } from '@/components/ui/badge';
 import { shortenAddress, formatEth } from '@/lib/utils/validation';
 import { Loader2, CheckCircle2, XCircle, ExternalLink, AlertTriangle, Code2 } from 'lucide-react';
 
-interface ContractCallCardProps extends ContractCallProps {}
+interface ContractCallCardProps {
+  result: {
+    success: boolean;
+    data: ContractCallProps;
+  };
+}
 
-export function ContractCallCard({
-  from,
-  contractAddress,
-  contractName,
-  functionName,
-  data,
-  value,
-  chainId,
-  gasEstimate,
-  gasPrice,
-  comment,
-}: ContractCallCardProps) {
+export function ContractCallCard({ result }: ContractCallCardProps) {
+  // Extract data from result
+  const {
+    from,
+    contractAddress,
+    contractName,
+    functionName,
+    data,
+    value,
+    chainId,
+    gasEstimate,
+    gasPrice,
+    comment,
+  } = result.data;
   const [error, setError] = useState<string | null>(null);
 
   // Wagmi hook for writing contract

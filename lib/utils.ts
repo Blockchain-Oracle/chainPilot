@@ -1,9 +1,15 @@
+import type {
+  CoreAssistantMessage,
+  CoreToolMessage,
+  UIMessage,
+  UIMessagePart,
+} from "ai";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { DBMessage } from "@/lib/db/schema";
 import { ChatSDKError, type ErrorCode } from "./errors";
-import type { ChatMessage } from "./types";
-import type { Message, MessagePart } from "@/lib/adk/types";
+import type { ChatMessage, CustomUIDataTypes } from "./types";
+import { formatISO } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -57,7 +63,10 @@ export function generateUUID(): string {
   });
 }
 
-export function getMostRecentUserMessage(messages: Array<Message>) {
+type ResponseMessageWithoutId = CoreToolMessage | CoreAssistantMessage;
+type ResponseMessage = ResponseMessageWithoutId & { id: string };
+
+export function getMostRecentUserMessage(messages: Array<UIMessage>) {
   const userMessages = messages.filter((message) => message.role === "user");
   return userMessages.at(-1);
 }
@@ -65,7 +74,7 @@ export function getMostRecentUserMessage(messages: Array<Message>) {
 export function getTrailingMessageId({
   messages,
 }: {
-  messages: Array<Message>;
+  messages: Array<ResponseMessage>;
 }): string | null {
   const trailingMessage = messages.at(-1);
 
@@ -74,7 +83,8 @@ export function getTrailingMessageId({
   return trailingMessage.id;
 }
 
-export function sanitizeText(text: string) {
+export function sanitizeText(text: string | undefined | null): string {
+  if (!text) return "";
   return text.replace("<has_function_call>", "");
 }
 
@@ -82,8 +92,10 @@ export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
   return messages.map((message) => ({
     id: message.id,
     role: message.role as "user" | "assistant" | "system",
-    parts: JSON.parse(message.parts) as MessagePart[],
-    createdAt: message.createdAt,
+    parts: JSON.parse(message.parts) as UIMessagePart<CustomUIDataTypes, any>[],
+    metadata: {
+      createdAt: formatISO(message.createdAt),
+    },
   }));
 }
 

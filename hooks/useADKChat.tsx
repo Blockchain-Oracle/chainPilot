@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { getModelConfig } from '@/lib/ai/model-config';
 
 interface MessagePart {
   type: string;
@@ -119,7 +120,7 @@ export function useADKChat({
         body: JSON.stringify({
           id,
           message: userMessage,
-          selectedChatModel: 'gemini-2.0-flash-exp',
+          selectedChatModel: getModelConfig().model,
           selectedVisibilityType: 'private',
           walletAddress,
           userId,
@@ -167,23 +168,44 @@ export function useADKChat({
                   break;
 
                 case 'text-delta':
-                  currentContent += data.textDelta;
-                  setMessages(prev => prev.map(msg =>
-                    msg.id === assistantId
-                      ? {
-                          ...msg,
-                          // Use both text and content for compatibility
-                          parts: [{ type: 'text', text: currentContent, content: currentContent }],
-                        }
-                      : msg
-                  ));
+                  // Backend sends 'content' field, not 'textDelta'
+                  const textChunk = data.content || data.textDelta || '';
+                  console.log('[useADKChat] Received text-delta:', {
+                    hasContent: !!data.content,
+                    hasTextDelta: !!data.textDelta,
+                    chunk: textChunk,
+                    chunkLength: textChunk.length,
+                    dataKeys: Object.keys(data)
+                  });
+                  currentContent += textChunk;
+                  setMessages(prev => prev.map(msg => {
+                    if (msg.id === assistantId) {
+                      // Find existing text part or create new one
+                      const toolParts = msg.parts.filter(p => p.type.startsWith('tool-'));
+                      const textPart = { type: 'text', text: currentContent, content: currentContent };
+
+                      return {
+                        ...msg,
+                        // Keep tool parts, update/add text part
+                        parts: [...toolParts, textPart],
+                      };
+                    }
+                    return msg;
+                  }));
                   setStreamingMessage(prev => prev ? {
                     ...prev,
-                    parts: [{ type: 'text', text: currentContent, content: currentContent }],
+                    parts: prev.parts.filter(p => p.type.startsWith('tool-')).concat([
+                      { type: 'text', text: currentContent, content: currentContent }
+                    ]),
                   } : null);
                   break;
 
                 case 'tool-call':
+                  console.log('[useADKChat] Received tool-call event:', {
+                    toolName: data.toolName,
+                    args: data.args,
+                    toolCallId: data.toolCallId,
+                  });
                   setMessages(prev => prev.map(msg =>
                     msg.id === assistantId
                       ? {
@@ -202,6 +224,7 @@ export function useADKChat({
                               type: `tool-${data.toolName}`,
                               args: data.args,
                               toolCallId: data.toolCallId,
+                              state: 'input-available', // Add state for loading display
                             },
                           ],
                         }
@@ -210,9 +233,56 @@ export function useADKChat({
                   break;
 
                 case 'tool-result':
-                  setMessages(prev => prev.map(msg =>
-                    msg.id === assistantId
-                      ? {
+                  console.log('[useADKChat] Received tool-result event:', {
+                    toolCallId: data.toolCallId,
+                    toolName: data.toolName,
+                    result: data.result,
+                    resultKeys: data.result ? Object.keys(data.result) : [],
+                    resultPreview: data.result ? JSON.stringify(data.result).substring(0, 200) : 'undefined',
+                  });
+
+                  setMessages(prev => {
+                    const updated = prev.map(msg => {
+                      if (msg.id === assistantId) {
+                        console.log('[useADKChat] Found assistant message, current parts:', {
+                          partsCount: msg.parts.length,
+                          parts: msg.parts.map(p => ({
+                            type: p.type,
+                            toolCallId: p.toolCallId,
+                            state: p.state,
+                            hasOutput: !!p.output
+                          }))
+                        });
+
+                        const updatedParts = msg.parts.map(part => {
+                          if (part.toolCallId === data.toolCallId) {
+                            console.log('[useADKChat] ✅ MATCHING tool part found! Updating with result:', {
+                              toolCallId: part.toolCallId,
+                              oldState: part.state,
+                              newState: 'output-available',
+                              resultExists: !!data.result,
+                              result: data.result,
+                            });
+                            return {
+                              ...part,
+                              output: data.result, // Use 'output' field like in message.tsx
+                              state: 'output-available', // Set state for card rendering
+                            };
+                          }
+                          return part;
+                        });
+
+                        console.log('[useADKChat] Updated parts:', {
+                          partsCount: updatedParts.length,
+                          parts: updatedParts.map(p => ({
+                            type: p.type,
+                            toolCallId: p.toolCallId,
+                            state: p.state,
+                            hasOutput: !!p.output
+                          }))
+                        });
+
+                        return {
                           ...msg,
                           toolResults: [
                             ...(msg.toolResults || []),
@@ -221,14 +291,19 @@ export function useADKChat({
                               result: data.result,
                             },
                           ],
-                          parts: msg.parts.map(part =>
-                            part.toolCallId === data.toolCallId
-                              ? { ...part, result: data.result }
-                              : part
-                          ),
-                        }
-                      : msg
-                  ));
+                          parts: updatedParts,
+                        };
+                      }
+                      return msg;
+                    });
+
+                    console.log('[useADKChat] Messages after tool-result update:', {
+                      messageCount: updated.length,
+                      assistantMessage: updated.find(m => m.id === assistantId)
+                    });
+
+                    return updated;
+                  });
                   break;
 
                 case 'error':

@@ -17,22 +17,29 @@ import { Badge } from '@/components/ui/badge';
 import { shortenAddress, formatEth } from '@/lib/utils/validation';
 import { Loader2, CheckCircle2, XCircle, ExternalLink, AlertTriangle, Coins } from 'lucide-react';
 
-interface TokenTransferCardProps extends TokenTransferProps {}
+interface TokenTransferCardProps {
+  result: {
+    success: boolean;
+    data: TokenTransferProps;
+  };
+}
 
-export function TokenTransferCard({
-  from,
-  tokenAddress,
-  tokenSymbol,
-  tokenDecimals,
-  to,
-  amount,
-  amountWei,
-  data,
-  chainId,
-  gasEstimate,
-  gasPrice,
-  toEnsName,
-}: TokenTransferCardProps) {
+export function TokenTransferCard({ result }: TokenTransferCardProps) {
+  // Extract data from result
+  const {
+    from,
+    tokenAddress,
+    tokenSymbol,
+    tokenDecimals,
+    to,
+    amount,
+    amountWei,
+    data,
+    chainId,
+    gasEstimate,
+    gasPrice,
+    toEnsName,
+  } = result.data;
   const [error, setError] = useState<string | null>(null);
 
   // Wagmi hook for writing contract
