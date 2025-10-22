@@ -19,7 +19,7 @@ export async function getChatHistory(chatId: string, walletAddress: string) {
     // Get session from session service
     const session = await sessionService.getSession("chainpilot", user.id, chatId);
 
-    console.log('[getChatHistory] Session found with', session.events?.length || 0, 'events');
+    console.log('[getChatHistory] Session found with', session?.events?.length || 0, 'events');
 
     if (!session || !session.events || session.events.length === 0) {
       console.log('[getChatHistory] No events found, returning empty');

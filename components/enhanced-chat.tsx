@@ -25,6 +25,23 @@ import { TokenTransferCard } from "@/components/alchemy/cards/TokenTransferCard"
 import { TokenApprovalCard } from "@/components/alchemy/cards/TokenApprovalCard";
 import { ContractCallCard } from "@/components/alchemy/cards/ContractCallCard";
 
+// Import Web3 Research card components for generative UI
+import {
+  SearchResultsCard,
+  ResearchPlanCard,
+  ResearchStatusCard,
+  ResourceListCard,
+  ContentCard,
+  ResearchLoadingCard
+} from "@/components/web3-research";
+
+// Import Jupiter card components for generative UI
+import { TokenSearchCard } from "@/components/jupiter/TokenSearchCard";
+import { SwapQuoteCard } from "@/components/jupiter/SwapQuoteCard";
+import { RoutersCard } from "@/components/jupiter/RoutersCard";
+import { DBCPoolCard } from "@/components/jupiter/DBCPoolCard";
+import { IntegratedPluginCard } from "@/components/jupiter/IntegratedPluginCard";
+
 type MessagePart = {
   type: "text" | "tool_call" | "tool_result";
   text?: string;
@@ -48,6 +65,9 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [isResearching, setIsResearching] = useState(false);
+  const [researchTokenName, setResearchTokenName] = useState<string | undefined>();
+  const [researchTokenTicker, setResearchTokenTicker] = useState<string | undefined>();
   const chatRef = useRef<HTMLDivElement>(null);
   const { address, isConnected } = useAccount();
   const { toggleSidebar, open: sidebarOpen } = useSidebar();
@@ -130,6 +150,21 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+
+    // Detect research queries
+    const isResearchQuery = /research|tokenomics|analyze|investigate|study/i.test(input);
+
+    // Extract token name/ticker from query if it's a research query
+    if (isResearchQuery) {
+      // Simple regex to extract potential token names (capitalize words after "research", etc.)
+      const tokenMatch = input.match(/(?:research|analyze|study)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*(?:\(([A-Z]+)\))?/i);
+      if (tokenMatch) {
+        setResearchTokenName(tokenMatch[1]);
+        setResearchTokenTicker(tokenMatch[2]);
+      }
+      setIsResearching(true);
+    }
+
     setInput("");
     setIsLoading(true);
 
@@ -168,6 +203,9 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
       ]);
     } finally {
       setIsLoading(false);
+      setIsResearching(false);
+      setResearchTokenName(undefined);
+      setResearchTokenTicker(undefined);
     }
   };
 
@@ -282,6 +320,120 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
           </CardWrapper>
         );
 
+      // Jupiter Tools
+      case "jupiter_search_tokens":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <TokenSearchCard result={result} />
+          </CardWrapper>
+        );
+
+      case "jupiter_get_swap_quote":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <SwapQuoteCard result={result} />
+          </CardWrapper>
+        );
+
+      case "jupiter_get_routers":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <RoutersCard result={result} />
+          </CardWrapper>
+        );
+
+      case "jupiter_get_dbc_pool":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <DBCPoolCard result={result} />
+          </CardWrapper>
+        );
+
+      case "jupiter_show_plugin":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <IntegratedPluginCard result={result} />
+          </CardWrapper>
+        );
+
+      // Web3 Research Tools
+      case "web3_search":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <SearchResultsCard result={result} />
+          </CardWrapper>
+        );
+
+      case "create_research_plan":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ResearchPlanCard result={result} />
+          </CardWrapper>
+        );
+
+      case "research_token":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ResearchPlanCard result={result} />
+          </CardWrapper>
+        );
+
+      case "research_with_keywords":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <SearchResultsCard result={result} />
+          </CardWrapper>
+        );
+
+      case "update_research_status":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ResearchStatusCard result={result} />
+          </CardWrapper>
+        );
+
+      case "fetch_content":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ContentCard result={result} />
+          </CardWrapper>
+        );
+
+      case "search_source":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <SearchResultsCard result={result} />
+          </CardWrapper>
+        );
+
+      case "list_resources":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ResourceListCard result={result} />
+          </CardWrapper>
+        );
+
+      case "get_research_status":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ResearchStatusCard result={result} />
+          </CardWrapper>
+        );
+
+      case "complete_research":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ResearchStatusCard result={result} />
+          </CardWrapper>
+        );
+
+      case "list_research_sessions":
+        return (
+          <CardWrapper key={key} id={cardId}>
+            <ResourceListCard result={result} />
+          </CardWrapper>
+        );
+
       default:
         console.log('[renderToolResultCard] No specific card for:', toolName);
         // Fallback to generic JSON display
@@ -298,38 +450,6 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
           </CardWrapper>
         );
     }
-  };
-
-  const renderMessageContent = (content: string | MessagePart[]) => {
-    // Handle simple string content
-    if (typeof content === "string") {
-      return <p className="whitespace-pre-wrap">{content}</p>;
-    }
-
-    // Handle structured content with tool results
-    return (
-      <div className="space-y-3">
-        {content.map((part, idx) => {
-          if (part.type === "text" && part.text) {
-            return (
-              <p key={idx} className="whitespace-pre-wrap">
-                {part.text}
-              </p>
-            );
-          }
-
-          if (part.type === "tool_result" && part.tool_result) {
-            return renderToolResultCard(
-              part.tool_name || "unknown",
-              part.tool_result,
-              idx
-            );
-          }
-
-          return null;
-        })}
-      </div>
-    );
   };
 
   if (isLoadingHistory) {
@@ -393,17 +513,17 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
               Welcome to ChainPilot
             </h3>
             <p className="text-vet-text-secondary max-w-md">
-              Your AI assistant for multi-chain blockchain operations. Ask me to
-              check balances, track NFTs, or prepare transactions across
-              Ethereum, Base, and more.
+              Your AI assistant for multi-chain blockchain operations and Web3 research. 
+              Ask me to check balances, track NFTs, prepare transactions, or research 
+              tokens across Ethereum, Base, and more.
             </p>
 
             {/* Suggested Actions */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
               {[
                 "Check my ETH balance",
+                "Research Bitcoin tokenomics",
                 "Show my NFTs on Base",
-                "Get gas prices on Sepolia",
                 "What's the price of USDC?",
               ].map((suggestion, idx) => (
                 <motion.button
@@ -495,18 +615,41 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
         ))}
 
         {isLoading && (
-          <div className="flex items-start gap-3 justify-start">
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
-              <div className="translate-y-px">
-                <SparklesIcon size={14} color="#E2008C" />
+          isResearching ? (
+            // Show research-specific loading card
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-start gap-3 justify-start w-full"
+            >
+              <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
+                <div className="translate-y-px">
+                  <SparklesIcon size={14} color="#E2008C" />
+                </div>
+              </div>
+              <div className="flex-1 max-w-[80%]">
+                <ResearchLoadingCard
+                  tokenName={researchTokenName}
+                  tokenTicker={researchTokenTicker}
+                />
+              </div>
+            </motion.div>
+          ) : (
+            // Show generic loading indicator
+            <div className="flex items-start gap-3 justify-start">
+              <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-vet-border bg-vet-surface">
+                <div className="translate-y-px">
+                  <SparklesIcon size={14} color="#E2008C" />
+                </div>
+              </div>
+              <div className="bg-vet-surface border border-vet-border rounded-2xl px-4 py-3 flex items-center gap-2">
+                <span className="inline-block w-2 h-2 bg-vet-accent rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="inline-block w-2 h-2 bg-vet-accent rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="inline-block w-2 h-2 bg-vet-accent rounded-full animate-bounce" />
               </div>
             </div>
-            <div className="bg-vet-surface border border-vet-border rounded-2xl px-4 py-3 flex items-center gap-2">
-              <span className="inline-block w-2 h-2 bg-vet-accent rounded-full animate-bounce [animation-delay:-0.3s]" />
-              <span className="inline-block w-2 h-2 bg-vet-accent rounded-full animate-bounce [animation-delay:-0.15s]" />
-              <span className="inline-block w-2 h-2 bg-vet-accent rounded-full animate-bounce" />
-            </div>
-          </div>
+          )
         )}
       </div>
 

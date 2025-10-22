@@ -12,6 +12,12 @@ import {
   Tag
 } from "lucide-react";
 
+// Jupiter components
+import { TokenSearchCard } from "./jupiter/TokenSearchCard";
+import { SwapQuoteCard } from "./jupiter/SwapQuoteCard";
+import { RoutersCard } from "./jupiter/RoutersCard";
+import { DBCPoolCard } from "./jupiter/DBCPoolCard";
+
 /**
  * Generative UI Components for Tool Results
  * These components render beautiful cards for tool outputs
@@ -269,6 +275,20 @@ export function ToolResultCard({ toolName, result }: { toolName: string; result:
 
   // Render appropriate card based on tool name
   switch (toolName) {
+    // Jupiter tools
+    case 'jupiter_search_tokens':
+      return <TokenSearchCard result={result} />;
+
+    case 'jupiter_get_swap_quote':
+      return <SwapQuoteCard result={result} />;
+
+    case 'jupiter_get_routers':
+      return <RoutersCard result={result} />;
+
+    case 'jupiter_get_dbc_pool':
+      return <DBCPoolCard result={result} />;
+
+    // Alchemy tools
     case 'get_balance':
       return <BalanceCard data={data} />;
 

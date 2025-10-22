@@ -57,7 +57,7 @@ export function NftsOwnedCard({ result }: NftsOwnedCardProps) {
         <div className="px-6 py-6">
           <h3 className="text-lg font-semibold text-vet-error">NFT Query Failed</h3>
           <p className="text-sm text-vet-text-secondary mt-1">
-            {result?.error || 'Failed to fetch NFTs'}
+            {!result?.success || 'Failed to fetch NFTs'}
           </p>
         </div>
       </motion.div>

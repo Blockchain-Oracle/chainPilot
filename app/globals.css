@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Jupiter Plugin Theme - VeChain Brand Colors */
+:root {
+  --jupiter-plugin-primary: 226, 0, 140; /* #E2008C - VeChain accent */
+  --jupiter-plugin-background: 11, 11, 11; /* #0B0B0B - VeChain bg */
+  --jupiter-plugin-primaryText: 255, 255, 255; /* White */
+  --jupiter-plugin-warning: 251, 191, 36; /* Warning yellow */
+  --jupiter-plugin-interactive: 26, 26, 26; /* Interactive bg */
+  --jupiter-plugin-module: 17, 17, 17; /* Module bg */
+}
+
 /* VeChain AI Terminal Theme Variables */
 @layer base {
   :root {

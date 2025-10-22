@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { toast } from "sonner";
 import { EnhancedChat } from "@/components/enhanced-chat";
+import { JupiterSwapWidget } from "@/components/jupiter";
 
 export default function ChatPage() {
   const params = useParams();
