@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,8 +31,6 @@ export function SwapExecutionModal({
   onSuccess,
   onError,
 }: SwapExecutionModalProps) {
-  const { address, isConnected } = useAccount();
-  const { data: walletClient } = useWalletClient();
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Handle swap success
@@ -96,19 +93,13 @@ export function SwapExecutionModal({
       inputMint,
       outputMint,
       amount,
-      isConnected,
-      hasWallet: !!walletClient,
     });
 
-    // Initialize config
+    // Initialize config - Let Jupiter handle wallet connections
     const config: IInit = {
       displayMode: 'modal',
       localStoragePrefix: 'chainpilot-jupiter-modal',
       defaultExplorer: 'Solscan',
-
-      // Wallet passthrough
-      enableWalletPassthrough: true,
-      passthroughWalletContextState: walletClient as any,
 
       // Pre-fill with quote data
       formProps: {
@@ -145,8 +136,6 @@ export function SwapExecutionModal({
     inputMint,
     outputMint,
     amount,
-    walletClient,
-    isConnected,
     handleSuccess,
     handleError,
     onClose,
@@ -158,15 +147,6 @@ export function SwapExecutionModal({
       window.Jupiter.close();
     }
   }, [isOpen, isInitialized]);
-
-  // Sync wallet state when it changes
-  useEffect(() => {
-    if (!isInitialized || !window.Jupiter) return;
-
-    window.Jupiter.syncProps({
-      passthroughWalletContextState: walletClient as any,
-    });
-  }, [walletClient, isInitialized]);
 
   if (!isOpen) return null;
 
