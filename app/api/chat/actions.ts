@@ -32,7 +32,6 @@ export async function generateTitleFromUserMessage({
     
     // Check for API key
     if (!modelConfig.apiKey) {
-      console.warn(`${modelConfig.provider} API key not configured, using fallback title`);
       return 'New Chat';
     }
 
@@ -49,21 +48,32 @@ export async function generateTitleFromUserMessage({
         aiModel = anthropic(modelConfig.model);
         break;
       default:
-        console.warn(`Unsupported model provider: ${modelConfig.provider}, using fallback title`);
         return 'New Chat';
     }
 
-    console.log(`[Title Generation] Using ${modelConfig.provider} model: ${modelConfig.model}`);
+    // Extract text content from message parts
+    const textContent = message.parts
+      .map((part: any) => {
+        if (typeof part === 'string') return part;
+        if (part.type === 'text') return part.text || part.content || '';
+        return '';
+      })
+      .join(' ')
+      .trim();
+
+    if (!textContent) {
+      return 'New Chat';
+    }
 
     // Use AI SDK with the selected model
-    const { text: title } = await generateText({
+    const { text: title} = await generateText({
       model: aiModel,
       system: `\n
       - you will generate a short title based on the first message a user begins a conversation with
       - ensure it is not more than 80 characters long
       - the title should be a summary of the user's message
       - do not use quotes or colons`,
-      prompt: JSON.stringify(message),
+      prompt: textContent,
     });
 
     return title || 'New Chat';

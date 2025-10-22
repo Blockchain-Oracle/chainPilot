@@ -21,7 +21,6 @@ export const maxDuration = 60;
 export async function POST(request: NextRequest) {
   try {
     const requestBody = await request.json();
-    console.log('[API] POST /api/chat - Request received');
 
     const {
       id,
@@ -62,8 +61,6 @@ export async function POST(request: NextRequest) {
     const chat = await getChatById({ id });
 
     if (!chat) {
-      console.log('[API] Creating new chat:', { id, userId: user.id });
-      
       // Extract text content for title generation
       const textContent = message.parts
         .map((part: any) => {
@@ -121,11 +118,35 @@ export async function POST(request: NextRequest) {
       }],
     });
 
-    console.log('[API] User message saved');
+    // Load conversation history from database (EXCLUDING the current user message we just saved)
+    const messagesFromDb = await getMessagesByChatId({ id });
+
+    // Convert database messages to ADK format
+    // ADK needs: { role: 'user' | 'model', parts: [{ text: string }] }
+    const conversationHistory = messagesFromDb
+      .filter(m => m.id !== message.id) // Exclude the current user message we just saved
+      .map(dbMsg => {
+        const parts = typeof dbMsg.parts === 'string' ? JSON.parse(dbMsg.parts) : dbMsg.parts;
+
+        // Extract text from parts
+        const textContent = parts
+          .map((part: any) => {
+            if (typeof part === 'string') return part;
+            if (part.type === 'text') return part.text || part.content || '';
+            return '';
+          })
+          .filter((text: string) => text.length > 0)
+          .join('\n');
+
+        return {
+          role: dbMsg.role === 'assistant' ? 'model' : dbMsg.role,
+          parts: textContent ? [{ text: textContent }] : []
+        };
+      })
+      .filter(msg => msg.parts.length > 0); // Only include messages with text content
 
     // Get model configuration
     const modelConfig = getModelConfig(selectedChatModel);
-    console.log('[API] Using model:', modelConfig.model);
 
     // Get ADK tools
     const tools = await getAlchemyTools();
@@ -183,18 +204,11 @@ When users request blockchain operations:
 
     const { runner, session } = await builder.build();
 
-    console.log('[API] Agent built successfully with session:', {
-      sessionId: session.id,
-      userId: session.userId,
-      hasSessionService: !!sessionService
-    });
-
     // Create SSE stream from ADK events
-    console.log('[API] Starting ADK streaming with proper session management');
-
     const encoder = new TextEncoder();
     let assistantMessageId = generateUUID();
     let assistantContent = '';
+    let messageParts: any[] = []; // Track ALL parts (tool calls + results)
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -206,16 +220,10 @@ When users request blockchain operations:
           for await (const event of runner.runAsync({
             userId: user.id,
             sessionId: session.id,
+            history: conversationHistory, // Send full conversation context
             newMessage: { parts: [{ text: userMessage }] },
             runConfig
           })) {
-            console.log('[API] ADK Event:', {
-              partial: event.partial,
-              hasContent: !!event.content,
-              contentParts: event.content?.parts?.length,
-              firstPartType: event.content?.parts?.[0]?.text ? 'text' : 'other'
-            });
-
             // Handle text streaming (partial chunks)
             if (event.partial && event.content?.parts?.[0]?.text) {
               const textChunk = event.content.parts[0].text;
@@ -226,7 +234,6 @@ When users request blockchain operations:
                 id: assistantMessageId,
                 content: textChunk
               };
-              console.log('[API] Sending SSE text-delta:', JSON.stringify(sseData));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`));
             }
 
@@ -248,6 +255,14 @@ When users request blockchain operations:
             const toolCalls = event.getFunctionCalls?.();
             if (toolCalls && toolCalls.length > 0) {
               for (const toolCall of toolCalls) {
+                // Add tool call part to messageParts for persistence
+                messageParts.push({
+                  type: `tool-${toolCall.name}`,
+                  toolCallId: toolCall.id,
+                  args: toolCall.args,
+                  state: 'input-available',
+                });
+
                 const data = JSON.stringify({
                   type: 'tool-call',
                   toolCallId: toolCall.id,
@@ -262,12 +277,16 @@ When users request blockchain operations:
             const toolResults = event.getFunctionResponses?.();
             if (toolResults && toolResults.length > 0) {
               for (const result of toolResults) {
-                console.log('[API] Tool result received:', {
-                  toolCallId: result.id,
-                  toolName: result.name,
-                  responseType: typeof result.response,
-                  responseKeys: result.response ? Object.keys(result.response) : [],
-                  response: result.response
+                // Update the corresponding tool part with result
+                messageParts = messageParts.map(part => {
+                  if (part.toolCallId === result.id) {
+                    return {
+                      ...part,
+                      output: result.response,
+                      state: 'output-available',
+                    };
+                  }
+                  return part;
                 });
 
                 const sseData = {
@@ -276,20 +295,25 @@ When users request blockchain operations:
                   toolName: result.name,
                   result: result.response
                 };
-                console.log('[API] Sending SSE tool-result:', JSON.stringify(sseData).substring(0, 500));
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`));
               }
             }
           }
 
-          // Save assistant message to DB
-          if (assistantContent) {
+          // Build complete parts array with text + tools
+          const completeParts = [
+            ...messageParts,
+            ...(assistantContent ? [{ type: 'text', text: assistantContent }] : [])
+          ];
+
+          // Save assistant message with ALL parts (text + tool results)
+          if (completeParts.length > 0) {
             await saveMessages({
               messages: [{
                 chatId: id,
                 id: assistantMessageId,
                 role: "assistant",
-                parts: JSON.stringify([{ type: 'text', text: assistantContent }]),
+                parts: JSON.stringify(completeParts),
                 attachments: JSON.stringify([]),
                 createdAt: new Date(),
               }],
@@ -300,8 +324,6 @@ When users request blockchain operations:
           const finishData = JSON.stringify({ type: 'finish' });
           controller.enqueue(encoder.encode(`data: ${finishData}\n\n`));
           controller.close();
-
-          console.log('[API] ADK streaming completed successfully');
         } catch (error: any) {
           console.error('[API] ADK streaming error:', error);
           const errorData = JSON.stringify({

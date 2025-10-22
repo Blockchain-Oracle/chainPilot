@@ -16,7 +16,7 @@ export default function Page() {
   useEffect(() => {
     // Get chat model from cookie on client side
     const cookies = document.cookie.split(';');
-    const chatModelCookie = cookies.find(cookie => 
+    const chatModelCookie = cookies.find(cookie =>
       cookie.trim().startsWith('chat-model=')
     );
     

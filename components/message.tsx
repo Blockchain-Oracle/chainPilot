@@ -199,17 +199,7 @@ const PurePreviewMessage = ({
                 // Use index in key to prevent duplicate key errors
                 const uniqueKey = `${toolCallId}-${index}`;
 
-                console.log('[Message] Tool part detected:', {
-                  toolType,
-                  toolName,
-                  state,
-                  toolCallId,
-                  uniqueKey,
-                  partData: part
-                });
-
                 if (state === "input-available") {
-                  console.log('[Message] Showing tool loading state for:', toolName);
                   return (
                     <div key={uniqueKey}>
                       <ToolCallLoader loadingMessage={`Running ${toolName}...`} />
@@ -219,23 +209,9 @@ const PurePreviewMessage = ({
 
                 if (state === "output-available") {
                   const { output } = part;
-                  console.log('[Message] Tool output-available detected:', {
-                    toolType,
-                    toolName,
-                    state,
-                    toolCallId,
-                    hasOutput: !!output,
-                    outputType: typeof output,
-                    outputKeys: output ? Object.keys(output) : [],
-                    success: output?.success,
-                    hasData: !!output?.data,
-                    dataKeys: output?.data ? Object.keys(output.data) : [],
-                    fullOutput: output
-                  });
 
                   // Validate output structure
                   if (!output) {
-                    console.error('[Message] ❌ Output is undefined/null for:', toolCallId);
                     return (
                       <div key={uniqueKey} className="mt-4 p-4 bg-red-500/10 rounded-lg border border-red-500">
                         <h3 className="font-semibold mb-2 text-sm text-red-500">
@@ -246,56 +222,43 @@ const PurePreviewMessage = ({
                   }
 
                   // Map tool names to their respective card components
-                  console.log('[Message] Rendering card for tool:', toolType);
                   switch (toolType) {
                     case "get_balance":
-                      console.log('[Message] Rendering BalanceCard for:', toolType);
                       return <BalanceCard key={uniqueKey} result={output} />;
 
                     case "get_token_balance":
-                      console.log('[Message] Rendering TokenBalancesCard for:', toolType);
                       return <TokenBalancesCard key={uniqueKey} result={output} />;
 
                     case "get_token_metadata":
-                      console.log('[Message] Rendering TokenMetadataCard for:', toolType);
                       return <TokenMetadataCard key={uniqueKey} result={output} />;
 
                     case "get_token_price":
                     case "get_token_price_by_address":
-                      console.log('[Message] Rendering TokenPriceCard for:', toolType);
                       return <TokenPriceCard key={uniqueKey} result={output} />;
 
                     case "get_gas_price":
-                      console.log('[Message] Rendering GasPriceCard for:', toolType);
                       return <GasPriceCard key={uniqueKey} result={output} />;
 
                     case "get_nfts_owned":
                     case "get_collections_for_owner":
-                      console.log('[Message] Rendering NftsOwnedCard for:', toolType);
                       return <NftsOwnedCard key={uniqueKey} result={output} />;
 
                     case "get_transaction_history":
-                      console.log('[Message] Rendering TransactionHistoryCard for:', toolType);
                       return <TransactionHistoryCard key={uniqueKey} result={output} />;
 
                     case "prepare_eth_transfer":
-                      console.log('[Message] Rendering TransferCard for:', toolType);
                       return <TransferCard key={uniqueKey} result={output} />;
 
                     case "prepare_token_transfer":
-                      console.log('[Message] Rendering TokenTransferCard for:', toolType);
                       return <TokenTransferCard key={uniqueKey} result={output} />;
 
                     case "prepare_token_approval":
-                      console.log('[Message] Rendering TokenApprovalCard for:', toolType);
                       return <TokenApprovalCard key={uniqueKey} result={output} />;
 
                     case "prepare_contract_call":
-                      console.log('[Message] Rendering ContractCallCard for:', toolType);
                       return <ContractCallCard key={uniqueKey} result={output} />;
 
                     default:
-                      console.log('[Message] No card component for tool:', toolType, '- showing generic card');
                       // Fallback to generic display for unmapped tools
                       return (
                         <div key={uniqueKey} className="mt-4 p-4 bg-muted/50 rounded-lg border">
@@ -345,7 +308,7 @@ export const PreviewMessage = memo(
       return false;
     if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
 
-    return false;
+    return true; // ✅ Props are equal, skip re-render
   }
 );
 
