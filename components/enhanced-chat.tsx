@@ -470,7 +470,7 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
   }
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto w-full">
+    <div className="flex flex-col h-screen max-w-4xl mx-auto w-full overflow-x-hidden">
       {/* Header with Sidebar Toggle */}
       <div className="sticky top-0 z-10 border-b border-vet-border/30 bg-vet-bg/95 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4 shadow-lg">
         <div className="flex items-center justify-between">
@@ -517,10 +517,10 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
                 className="object-contain sm:w-12 sm:h-12"
               />
             </div>
-            <h3 className="text-lg sm:text-xl font-semibold text-vet-text-primary mb-1.5 sm:mb-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-vet-text-primary mb-1.5 sm:mb-2 px-4">
               Welcome to ChainPilot
             </h3>
-            <p className="text-sm sm:text-base text-vet-text-secondary max-w-md px-4">
+            <p className="text-sm sm:text-base text-vet-text-secondary max-w-md px-4 w-full">
               Your AI assistant for multi-chain blockchain operations and Web3 research.
               Ask me to check balances, track NFTs, prepare transactions, or research
               tokens across Ethereum, Base, and more.

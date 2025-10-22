@@ -62,7 +62,7 @@ export default function RootLayout({
       // prop is necessary to avoid the React hydration mismatch warning.
       // https://github.com/pacocoursey/next-themes?tab=readme-ov-file#with-app
       suppressHydrationWarning
-      className={`${geist.variable} ${geistMono.variable}`}
+      className={`${geist.variable} ${geistMono.variable} overflow-x-hidden`}
     >
       <head>
         <script
@@ -77,7 +77,7 @@ export default function RootLayout({
           defer
         />
       </head>
-      <body className="antialiased bg-background dark" style={{ backgroundColor: 'hsl(240deg 10% 3.92%)' }}>
+      <body className="antialiased bg-background dark overflow-x-hidden" style={{ backgroundColor: 'hsl(240deg 10% 3.92%)' }}>
         <Web3Provider>
           <ThemeProvider
             attribute="class"
