@@ -243,7 +243,7 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
   };
 
   return (
-    <div className="w-full max-w-full overflow-hidden space-y-4 px-4 md:px-0">
+    <div data-testid="suggested-actions" className="w-full max-w-full overflow-hidden space-y-4 px-4 md:px-0">
       {/* Category Pills - Terminal Style */}
       <div className="w-full max-w-full overflow-hidden">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
@@ -284,7 +284,7 @@ function PureChatSuggestedActions({ onSelectSuggestion }: ChatSuggestedActionsPr
         </div>
       </div>
 
-      {/* Action Cards - Horizontal Scroll */}
+      {/* Action Cards - Terminal Card Style */}
       <div className="w-full max-w-full overflow-hidden">
         <div className="overflow-x-auto pb-2 scrollbar-hide">
           <div className="flex gap-2 sm:gap-3">
