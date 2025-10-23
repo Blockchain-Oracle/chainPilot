@@ -152,16 +152,35 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
 
     setMessages((prev) => [...prev, userMessage]);
 
-    // Detect research queries
-    const isResearchQuery = /research|tokenomics|analyze|investigate|study/i.test(input);
+    // Detect research queries - expanded to catch more search/info patterns
+    const isResearchQuery = /research|tokenomics|analyze|investigate|study|search|information|info|learn|explore|explain|tell me about/i.test(input);
 
     // Extract token name/ticker from query if it's a research query
     if (isResearchQuery) {
-      // Simple regex to extract potential token names (capitalize words after "research", etc.)
-      const tokenMatch = input.match(/(?:research|analyze|study)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*(?:\(([A-Z]+)\))?/i);
-      if (tokenMatch) {
-        setResearchTokenName(tokenMatch[1]);
-        setResearchTokenTicker(tokenMatch[2]);
+      // More flexible regex to extract token names from various query formats
+      // Matches patterns like:
+      // - "research Ethereum" / "analyze Bitcoin staking"
+      // - "information about Ethereum" / "info about Solana"
+      // - "Ethereum (ETH)" / "Bitcoin (BTC)"
+      // - Just "Ethereum" or "Bitcoin" anywhere in the query
+      const patterns = [
+        // Match "about/on/for <token>" patterns
+        /(?:about|on|for|regarding)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*(?:\(([A-Z]+)\))?/i,
+        // Match "research/analyze/study <token>" patterns
+        /(?:research|analyze|study|investigate)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*(?:\(([A-Z]+)\))?/i,
+        // Match tokens with ticker in parentheses anywhere
+        /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*\(([A-Z]+)\)/,
+        // Match capitalized words (potential token names)
+        /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/
+      ];
+
+      for (const pattern of patterns) {
+        const tokenMatch = input.match(pattern);
+        if (tokenMatch) {
+          setResearchTokenName(tokenMatch[1]);
+          setResearchTokenTicker(tokenMatch[2]);
+          break;
+        }
       }
       setIsResearching(true);
     }
