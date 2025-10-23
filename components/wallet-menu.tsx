@@ -3,6 +3,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDown, Wallet, Copy, LogOut, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { useAccount } from "wagmi";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function WalletMenu() {
+  const { chain: fullChain } = useAccount();
+
   return (
     <ConnectButton.Custom>
       {({
@@ -35,7 +38,7 @@ export function WalletMenu() {
         };
 
         const viewOnExplorer = () => {
-          const explorerUrl = chain?.blockExplorers?.default?.url;
+          const explorerUrl = fullChain?.blockExplorers?.default?.url;
           if (explorerUrl) {
             window.open(`${explorerUrl}/address/${account.address}`, "_blank");
           }
@@ -98,7 +101,7 @@ export function WalletMenu() {
                 <span>Copy Address</span>
               </DropdownMenuItem>
 
-              {chain?.blockExplorers?.default && (
+              {fullChain?.blockExplorers?.default && (
                 <DropdownMenuItem
                   onClick={viewOnExplorer}
                   className="text-vet-text-primary hover:bg-vet-surface/50 cursor-pointer"
