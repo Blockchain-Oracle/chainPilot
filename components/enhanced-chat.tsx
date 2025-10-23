@@ -12,6 +12,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { Markdown } from "@/components/markdown";
 import Image from "next/image";
 import { ChatSuggestedActions } from "@/components/chat-suggested-actions";
+import { WalletMenu } from "@/components/wallet-menu";
 
 // Import Alchemy card components for generative UI
 import { BalanceCard } from "@/components/alchemy/cards/BalanceCard";
@@ -512,11 +513,8 @@ export const EnhancedChat = ({ chatId }: EnhancedChatProps) => {
             )}
           </Button>
 
-          {/* Status Badge */}
-          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-vet-surface/50 border border-vet-border/30">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-vet-accent animate-pulse" />
-            <span className="text-xs sm:text-sm text-vet-text-primary font-medium">ChainPilot Active</span>
-          </div>
+          {/* Wallet Menu */}
+          <WalletMenu />
         </div>
       </div>
 
